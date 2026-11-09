@@ -16,10 +16,10 @@ Item {
     scale: visibleState ? 1.0 : 0.9
 
     Behavior on opacity {
-        NumberAnimation { duration: Theme.animDurationFast }
+        NumberAnimation { duration: Theme.animDurationFast; easing.type: Easing.OutCubic }
     }
     Behavior on scale {
-        NumberAnimation { duration: Theme.animDurationFast; easing.type: Theme.animEasingSpring }
+        SpringAnimation { spring: 5.0; damping: 0.60; epsilon: 0.001 }
     }
 
     Rectangle {

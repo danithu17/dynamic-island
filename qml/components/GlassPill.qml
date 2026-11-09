@@ -36,6 +36,10 @@ Item {
         border.width: 1
         clip: true
 
+        Behavior on radius {
+            SmoothedAnimation { duration: Theme.animDurationNormal; easing.type: Easing.OutCubic }
+        }
+
         // Top specular highlight gradient (Liquid Glass sheen)
         Rectangle {
             id: specularSheen

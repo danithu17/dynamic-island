@@ -54,10 +54,18 @@ Item {
             border.width: 1
 
             Behavior on x {
-                NumberAnimation { duration: Theme.animDurationNormal; easing.type: Theme.animEasingSpring }
+                SpringAnimation {
+                    spring:  Theme.springFast
+                    damping: Theme.dampingFirm
+                    epsilon: 0.5
+                }
             }
             Behavior on width {
-                NumberAnimation { duration: Theme.animDurationNormal; easing.type: Theme.animEasingSpring }
+                SpringAnimation {
+                    spring:  Theme.springFast
+                    damping: Theme.dampingFirm
+                    epsilon: 0.5
+                }
             }
         }
 
@@ -88,6 +96,10 @@ Item {
                             size: 15
                             color: tabItem.isActive ? Theme.textPrimary : Theme.textSecondary
                             anchors.verticalCenter: parent.verticalCenter
+
+                            Behavior on color {
+                                ColorAnimation { duration: Theme.animDurationFast }
+                            }
                         }
 
                         Text {
@@ -98,6 +110,10 @@ Item {
                             font.pixelSize: 11
                             font.weight: tabItem.isActive ? Font.DemiBold : Font.Medium
                             anchors.verticalCenter: parent.verticalCenter
+
+                            Behavior on color {
+                                ColorAnimation { duration: Theme.animDurationFast }
+                            }
                         }
 
                         // Notification Badge

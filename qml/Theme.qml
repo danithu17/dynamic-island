@@ -30,9 +30,17 @@ QtObject {
     readonly property string fontMono: "Cascadia Code, Consolas, Courier New, monospace"
 
     // Animation constants
-    readonly property int animDurationFast: 180
-    readonly property int animDurationNormal: 280
-    readonly property int animDurationSlow: 360
-    readonly property var animEasing: Easing.OutCubic
+    readonly property int animDurationFast:   160
+    readonly property int animDurationNormal: 300
+    readonly property int animDurationSlow:   400
+
+    // Easing
+    readonly property var animEasing:       Easing.OutCubic
     readonly property var animEasingSpring: Easing.OutBack
+
+    // Spring presets (use directly in SpringAnimation properties)
+    readonly property real springMedium:  2.8
+    readonly property real springFast:    4.5
+    readonly property real dampingMedium: 0.52
+    readonly property real dampingFirm:   0.65
 }
