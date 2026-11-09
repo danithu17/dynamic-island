@@ -96,10 +96,21 @@ bool DatabaseManager::createTables() {
         CREATE TABLE IF NOT EXISTS notes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
-            language TEXT DEFAULT 'plaintext',
+            language TEXT DEFAULT 'markdown',
             code TEXT NOT NULL,
             tags TEXT,
             is_pinned INTEGER DEFAULT 0,
+            project_path TEXT DEFAULT '',
+            is_snippet INTEGER DEFAULT 0,
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+    )";
+
+    // Scratchpad table
+    const QString scratchpadTable = R"(
+        CREATE TABLE IF NOT EXISTS scratchpad (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            content TEXT DEFAULT '',
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
     )";
@@ -112,10 +123,14 @@ bool DatabaseManager::createTables() {
         );
     )";
 
-    if (!q.exec(shelfTable) || !q.exec(clipboardTable) || !q.exec(notesTable) || !q.exec(settingsTable)) {
+    if (!q.exec(shelfTable) || !q.exec(clipboardTable) || !q.exec(notesTable) || !q.exec(scratchpadTable) || !q.exec(settingsTable)) {
         qCritical() << "Failed to create database tables:" << q.lastError().text();
         return false;
     }
+
+    // Run schema migrations for existing databases
+    q.exec("ALTER TABLE notes ADD COLUMN project_path TEXT DEFAULT ''");
+    q.exec("ALTER TABLE notes ADD COLUMN is_snippet INTEGER DEFAULT 0");
 
     return true;
 }

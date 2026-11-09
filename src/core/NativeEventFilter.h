@@ -10,6 +10,8 @@ class NativeEventFilter : public QObject, public QAbstractNativeEventFilter {
     Q_OBJECT
 public:
     static constexpr int HOTKEY_ID_TOGGLE = 0xAA01;
+    static constexpr int HOTKEY_ID_QUICK_NOTE = 0xAA02;
+    static constexpr int HOTKEY_ID_PASTE_STACK = 0xAA03;
 
     explicit NativeEventFilter(QObject *parent = nullptr);
     ~NativeEventFilter() override;
@@ -24,6 +26,8 @@ public:
 
 signals:
     void hotkeyTriggered();
+    void quickNoteTriggered();
+    void pasteStackTriggered();
     void clipboardChanged();
     void displayConfigurationChanged();
 

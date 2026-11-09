@@ -9,9 +9,50 @@ AppState &AppState::instance() {
 }
 
 AppState::AppState(QObject *parent)
-    : QObject(parent), m_toastTimer(new QTimer(this)) {
+    : QObject(parent),
+      m_toastTimer(new QTimer(this)),
+      m_eventTimer(new QTimer(this)) {
     m_toastTimer->setSingleShot(true);
     connect(m_toastTimer, &QTimer::timeout, this, &AppState::dismissToast);
+
+    m_eventTimer->setSingleShot(true);
+    connect(m_eventTimer, &QTimer::timeout, this, [this]() {
+        if (m_islandState == "compact") {
+            collapseToIdle();
+        }
+        m_compactEventMessage.clear();
+        emit compactEventMessageChanged();
+    });
+}
+
+void AppState::triggerEventCompact(const QString &msg, int durationMs) {
+    m_compactEventMessage = msg;
+    emit compactEventMessageChanged();
+
+    // If currently idle, morph to compact for 3 seconds then return to idle
+    if (m_islandState == "idle") {
+        setIslandState("compact");
+    }
+    m_eventTimer->start(durationMs);
+}
+
+void AppState::setIsQuickCaptureActive(bool active) {
+    if (m_isQuickCaptureActive != active) {
+        m_isQuickCaptureActive = active;
+        emit quickCaptureActiveChanged();
+        if (active) {
+            setIslandState("compact");
+        }
+    }
+}
+
+void AppState::openQuickCapture() {
+    setIsQuickCaptureActive(true);
+}
+
+void AppState::closeQuickCapture() {
+    setIsQuickCaptureActive(false);
+    collapseToIdle();
 }
 
 void AppState::setIslandState(const QString &state) {

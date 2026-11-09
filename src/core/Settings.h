@@ -17,6 +17,9 @@ class Settings : public QObject {
     Q_PROPERTY(int pomodoroLongBreakMin READ pomodoroLongBreakMin WRITE setPomodoroLongBreakMin NOTIFY pomodoroLongBreakMinChanged)
     Q_PROPERTY(int agentServerPort READ agentServerPort WRITE setAgentServerPort NOTIFY agentServerPortChanged)
     Q_PROPERTY(QString agentServerToken READ agentServerToken WRITE setAgentServerToken NOTIFY agentServerTokenChanged)
+    Q_PROPERTY(QString idleWidget READ idleWidget WRITE setIdleWidget NOTIFY idleWidgetChanged)
+    Q_PROPERTY(bool autoPaste READ autoPaste WRITE setAutoPaste NOTIFY autoPasteChanged)
+    Q_PROPERTY(bool pasteStackEnabled READ pasteStackEnabled WRITE setPasteStackEnabled NOTIFY pasteStackEnabledChanged)
 
 public:
     static Settings &instance();
@@ -51,6 +54,15 @@ public:
     QString agentServerToken() const { return m_agentServerToken; }
     void setAgentServerToken(const QString &val);
 
+    QString idleWidget() const { return m_idleWidget; }
+    void setIdleWidget(const QString &val);
+
+    bool autoPaste() const { return m_autoPaste; }
+    void setAutoPaste(bool val);
+
+    bool pasteStackEnabled() const { return m_pasteStackEnabled; }
+    void setPasteStackEnabled(bool val);
+
     Q_INVOKABLE void save();
     Q_INVOKABLE void load();
 
@@ -65,6 +77,9 @@ signals:
     void pomodoroLongBreakMinChanged();
     void agentServerPortChanged();
     void agentServerTokenChanged();
+    void idleWidgetChanged();
+    void autoPasteChanged();
+    void pasteStackEnabledChanged();
 
 private:
     explicit Settings(QObject *parent = nullptr);
@@ -81,6 +96,9 @@ private:
     int m_pomodoroLongBreakMin = 15;
     int m_agentServerPort = 19827;
     QString m_agentServerToken;
+    QString m_idleWidget = "clipboard";
+    bool m_autoPaste = false;
+    bool m_pasteStackEnabled = false;
 };
 
 } // namespace Aura

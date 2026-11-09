@@ -106,6 +106,30 @@ void Settings::setAgentServerToken(const QString &val) {
     }
 }
 
+void Settings::setIdleWidget(const QString &val) {
+    if (m_idleWidget != val) {
+        m_idleWidget = val;
+        emit idleWidgetChanged();
+        save();
+    }
+}
+
+void Settings::setAutoPaste(bool val) {
+    if (m_autoPaste != val) {
+        m_autoPaste = val;
+        emit autoPasteChanged();
+        save();
+    }
+}
+
+void Settings::setPasteStackEnabled(bool val) {
+    if (m_pasteStackEnabled != val) {
+        m_pasteStackEnabled = val;
+        emit pasteStackEnabledChanged();
+        save();
+    }
+}
+
 void Settings::updateAutoStartRegistry(bool enable) {
     QSettings runSettings(REG_RUN_PATH, QSettings::NativeFormat);
     if (enable) {
@@ -143,6 +167,9 @@ void Settings::save() {
     setVal("pomodoroLongBreakMin", QString::number(m_pomodoroLongBreakMin));
     setVal("agentServerPort", QString::number(m_agentServerPort));
     setVal("agentServerToken", m_agentServerToken);
+    setVal("idleWidget", m_idleWidget);
+    setVal("autoPaste", m_autoPaste ? "1" : "0");
+    setVal("pasteStackEnabled", m_pasteStackEnabled ? "1" : "0");
 }
 
 void Settings::load() {
@@ -164,6 +191,9 @@ void Settings::load() {
         else if (k == "pomodoroLongBreakMin") m_pomodoroLongBreakMin = v.toInt();
         else if (k == "agentServerPort") m_agentServerPort = v.toInt();
         else if (k == "agentServerToken") m_agentServerToken = v;
+        else if (k == "idleWidget") m_idleWidget = v;
+        else if (k == "autoPaste") m_autoPaste = (v == "1");
+        else if (k == "pasteStackEnabled") m_pasteStackEnabled = (v == "1");
     }
 }
 

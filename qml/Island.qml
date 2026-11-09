@@ -82,14 +82,14 @@ Item {
     }
 
     // ─────────────────────────────────────────────────────────
-    // 1. IDLE STATE (~120x32)
+    // 1. IDLE STATE (~120x32) — NEVER BLANK!
     // ─────────────────────────────────────────────────────────
     Item {
         id: idleView
         anchors.fill: parent
         opacity: (root.stateName === "idle") ? 1.0 : 0.0
         visible: opacity > 0.01
-        scale:   (root.stateName === "idle") ? 1.0 : 0.80
+        scale:   (root.stateName === "idle") ? 1.0 : 0.85
 
         Behavior on opacity {
             NumberAnimation { duration: Theme.animDurationFast; easing.type: Easing.OutCubic }
@@ -100,39 +100,50 @@ Item {
 
         Row {
             anchors.centerIn: parent
-            spacing: 10
+            spacing: 6
 
-            // Status / camera-cutout dot
-            Rectangle {
-                id: statusDot
-                width: 7; height: 7; radius: 3.5
-                color: (appState && appState.agentStatus === "needs_approval")
-                       ? Theme.warning
-                       : ((appState && appState.isPlaying) ? Theme.accent : "#050608")
-                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.15)
-                border.width: 1
+            // Dynamic Widget Icon
+            IconImage {
                 anchors.verticalCenter: parent.verticalCenter
-
-                SequentialAnimation on opacity {
-                    running: appState && (appState.isPlaying || appState.agentStatus === "working")
-                    loops:   Animation.Infinite
-                    NumberAnimation { to: 0.35; duration: 900; easing.type: Easing.InOutSine }
-                    NumberAnimation { to: 1.0;  duration: 900; easing.type: Easing.InOutSine }
-                }
-
-                // Color transition for status
-                Behavior on color {
-                    ColorAnimation { duration: Theme.animDurationFast }
+                size: 13
+                color: Theme.accent
+                source: {
+                    var w = settings ? settings.idleWidget : "clipboard"
+                    if (w === "git") return "qrc:/resources/icons/git-branch.svg"
+                    if (w === "pomodoro") return "qrc:/resources/icons/timer.svg"
+                    if (w === "mail") return "qrc:/resources/icons/mail.svg"
+                    if (w === "agent") return "qrc:/resources/icons/dev.svg"
+                    return "qrc:/resources/icons/clipboard.svg"
                 }
             }
 
-            // Pill notch sensor strip
-            Rectangle {
-                width: 44; height: 10; radius: 5
-                color: "#07080C"
-                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.10)
-                border.width: 0.8
+            // Dynamic Widget Text / Value
+            Text {
                 anchors.verticalCenter: parent.verticalCenter
+                color: Theme.textPrimary
+                font.family: (settings && (settings.idleWidget === "pomodoro" || settings.idleWidget === "clipboard")) ? Theme.fontMono : Theme.fontFamily
+                font.pixelSize: 11
+                font.weight: Font.DemiBold
+                elide: Text.ElideRight
+                maximumLineCount: 1
+                text: {
+                    var w = settings ? settings.idleWidget : "clipboard"
+                    if (w === "git") {
+                        return (appState && appState.gitBranch !== "") ? appState.gitBranch : "main"
+                    }
+                    if (w === "pomodoro") {
+                        return appState ? appState.pomodoroDisplay : "25:00"
+                    }
+                    if (w === "mail") {
+                        return (appState && appState.unreadMailCount > 0) ? (appState.unreadMailCount + " unread") : "0 unread"
+                    }
+                    if (w === "agent") {
+                        return appState ? appState.agentStatus : "idle"
+                    }
+                    // Default: clipboard count
+                    var count = clipboardManager ? clipboardManager.itemCount : 0
+                    return count + (count === 1 ? " clip" : " clips")
+                }
             }
         }
 
@@ -165,7 +176,84 @@ Item {
             SpringAnimation { spring: 4.5; damping: 0.65; epsilon: 0.001 }
         }
 
+        // Mode A: Quick Note Capture Input
         Row {
+            visible: appState && appState.isQuickCaptureActive
+            anchors.fill: parent
+            anchors.leftMargin: 6
+            anchors.rightMargin: 6
+            spacing: 6
+
+            IconImage {
+                source: "qrc:/resources/icons/notes.svg"
+                size: 14
+                color: Theme.accent
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            TextInput {
+                id: quickNoteInput
+                width: parent.width - 24
+                anchors.verticalCenter: parent.verticalCenter
+                color: Theme.textPrimary
+                font.family: Theme.fontFamily
+                font.pixelSize: 11
+                selectByMouse: true
+                focus: appState && appState.isQuickCaptureActive
+
+                Text {
+                    text: "Quick note... (Enter saves, Esc exits)"
+                    color: Theme.textMuted
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 10
+                    visible: !quickNoteInput.text && !quickNoteInput.activeFocus
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Keys.onReturnPressed: {
+                    if (notesManager && text.trim() !== "") {
+                        notesManager.quickCapture(text)
+                        text = ""
+                    }
+                    if (appState) appState.closeQuickCapture()
+                }
+
+                Keys.onEscapePressed: {
+                    text = ""
+                    if (appState) appState.closeQuickCapture()
+                }
+            }
+        }
+
+        // Mode B: Short Compact Event Message (3-second morph notification)
+        Row {
+            visible: appState && !appState.isQuickCaptureActive && appState.compactEventMessage !== ""
+            anchors.fill: parent
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
+            spacing: 8
+
+            Rectangle {
+                width: 6; height: 6; radius: 3
+                color: Theme.accent
+                anchors.verticalCenter: parent.verticalCenter
+            }
+
+            Text {
+                width: parent.width - 20
+                anchors.verticalCenter: parent.verticalCenter
+                text: appState ? appState.compactEventMessage : ""
+                color: Theme.textPrimary
+                font.family: Theme.fontFamily
+                font.pixelSize: 11
+                font.weight: Font.Medium
+                elide: Text.ElideRight
+            }
+        }
+
+        // Mode C: Standard Compact Status & Media / Focus
+        Row {
+            visible: appState && !appState.isQuickCaptureActive && appState.compactEventMessage === ""
             anchors.fill: parent
             spacing: 8
 
@@ -219,7 +307,7 @@ Item {
                 }
             }
 
-            // Right: equalizer bars + expand pill
+            // Right: equalizer bars + expand button
             Row {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
@@ -249,6 +337,7 @@ Item {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
+            enabled: appState && !appState.isQuickCaptureActive
             onClicked: if (appState) appState.toggleExpanded()
         }
     }
@@ -263,7 +352,6 @@ Item {
         opacity: (root.stateName === "expanded") ? 1.0 : 0.0
         visible: opacity > 0.01
 
-        // Enter: scale + fade from 0.93
         property real contentScale: (root.stateName === "expanded") ? 1.0 : 0.93
 
         Behavior on opacity {
@@ -273,7 +361,6 @@ Item {
             }
         }
 
-        // We scale the Column directly
         Column {
             id: expandedColumn
             anchors.fill: parent
@@ -319,7 +406,6 @@ Item {
                 border.color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
                 clip: true
 
-                // Each tab fades + scales in individually
                 ShelfTab     { anchors.fill: parent; visible: appState && appState.currentTab === "shelf" }
                 MailTab      { anchors.fill: parent; visible: appState && appState.currentTab === "mail" }
                 ClipboardTab { anchors.fill: parent; visible: appState && appState.currentTab === "clipboard" }
@@ -328,7 +414,6 @@ Item {
                 MediaTab     { anchors.fill: parent; visible: appState && appState.currentTab === "media" }
                 SettingsTab  { anchors.fill: parent; visible: appState && appState.currentTab === "settings" }
 
-                // Soft top-edge specular line inside content panel
                 Rectangle {
                     anchors.top: parent.top
                     anchors.left: parent.left

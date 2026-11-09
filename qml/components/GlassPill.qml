@@ -34,7 +34,7 @@ Item {
         color: root.backgroundColor
         border.color: root.borderColor
         border.width: 1
-        clip: true
+        antialiasing: true
 
         Behavior on radius {
             SmoothedAnimation { duration: Theme.animDurationNormal; easing.type: Easing.OutCubic }
@@ -47,12 +47,16 @@ Item {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            height: Math.min(parent.height * 0.45, 40)
-            radius: root.cornerRadius
+            anchors.topMargin: 1
+            anchors.leftMargin: 2
+            anchors.rightMargin: 2
+            height: Math.min(parent.height * 0.45, 30)
+            radius: Math.max(0, root.cornerRadius - 1)
+            antialiasing: true
 
             gradient: Gradient {
                 GradientStop { position: 0.0; color: Theme.glassSpecular }
-                GradientStop { position: 0.2; color: Qt.rgba(1.0, 1.0, 1.0, 0.06) }
+                GradientStop { position: 0.3; color: Qt.rgba(1.0, 1.0, 1.0, 0.04) }
                 GradientStop { position: 1.0; color: "transparent" }
             }
         }
@@ -62,6 +66,9 @@ Item {
             anchors.bottom: parent.bottom
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.bottomMargin: 1
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
             height: 1
             color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
         }

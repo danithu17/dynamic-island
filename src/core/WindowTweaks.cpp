@@ -56,6 +56,10 @@ void WindowTweaks::applyIslandWindowStyles(HWND hwnd) {
     style |= WS_POPUP;
     SetWindowLongPtr(hwnd, GWL_STYLE, style);
 
+    // Disable DWM non-client rendering to prevent top window shadow / frame ears
+    DWMNCRENDERINGPOLICY ncrp = DWMNCRP_DISABLED;
+    DwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+
     // Set topmost without activating
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
                  SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_FRAMECHANGED);

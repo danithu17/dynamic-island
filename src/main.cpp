@@ -54,6 +54,16 @@ int main(int argc, char *argv[]) {
         Aura::AppState::instance().toggleExpanded();
     });
 
+    // Connect Quick Capture hotkey (Ctrl+Alt+N)
+    QObject::connect(nativeFilter, &Aura::NativeEventFilter::quickNoteTriggered, []() {
+        Aura::AppState::instance().openQuickCapture();
+    });
+
+    // Connect Paste Stack hotkey (Ctrl+Alt+V)
+    QObject::connect(nativeFilter, &Aura::NativeEventFilter::pasteStackTriggered, []() {
+        Aura::ClipboardManager::instance().popPasteStack();
+    });
+
     // Connect clipboard update notification
     QObject::connect(nativeFilter, &Aura::NativeEventFilter::clipboardChanged, []() {
         Aura::ClipboardManager::instance().onNativeClipboardNotification();

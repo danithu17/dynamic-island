@@ -23,6 +23,8 @@ class AppState : public QObject {
     Q_PROPERTY(QString toastMessage READ toastMessage NOTIFY toastChanged)
     Q_PROPERTY(QString toastType READ toastType NOTIFY toastChanged)
     Q_PROPERTY(bool hasToast READ hasToast NOTIFY toastChanged)
+    Q_PROPERTY(QString compactEventMessage READ compactEventMessage NOTIFY compactEventMessageChanged)
+    Q_PROPERTY(bool isQuickCaptureActive READ isQuickCaptureActive WRITE setIsQuickCaptureActive NOTIFY quickCaptureActiveChanged)
 
 public:
     static AppState &instance();
@@ -67,12 +69,19 @@ public:
     QString toastType() const { return m_toastType; }
     bool hasToast() const { return !m_toastMessage.isEmpty(); }
 
+    QString compactEventMessage() const { return m_compactEventMessage; }
+    bool isQuickCaptureActive() const { return m_isQuickCaptureActive; }
+    void setIsQuickCaptureActive(bool active);
+
     Q_INVOKABLE void toggleExpanded();
     Q_INVOKABLE void collapseToIdle();
     Q_INVOKABLE void collapseToCompact();
     Q_INVOKABLE void expandTab(const QString &tab);
     Q_INVOKABLE void showToast(const QString &msg, const QString &type = "info");
     Q_INVOKABLE void dismissToast();
+    Q_INVOKABLE void triggerEventCompact(const QString &msg, int durationMs = 3000);
+    Q_INVOKABLE void openQuickCapture();
+    Q_INVOKABLE void closeQuickCapture();
     Q_INVOKABLE void quitApp();
 
 signals:
@@ -89,6 +98,8 @@ signals:
     void gitBranchChanged();
     void gitUncommittedCountChanged();
     void toastChanged();
+    void compactEventMessageChanged();
+    void quickCaptureActiveChanged();
     void requestWindowResize(int width, int height, int radius);
     void quitRequested();
 
@@ -107,12 +118,16 @@ private:
     QString m_pomodoroDisplay = "25:00";
     QString m_agentStatus = "idle";
     QString m_agentMessage;
-    QString m_gitBranch;
+    QString m_gitBranch = "main";
     int m_gitUncommittedCount = 0;
 
     QString m_toastMessage;
     QString m_toastType = "info";
     QTimer *m_toastTimer = nullptr;
+
+    QString m_compactEventMessage;
+    QTimer *m_eventTimer = nullptr;
+    bool m_isQuickCaptureActive = false;
 };
 
 } // namespace Aura
