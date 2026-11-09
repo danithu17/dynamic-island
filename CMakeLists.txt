@@ -81,6 +81,7 @@ set(SOURCES
     src/features/media/MediaManager.h
     src/features/media/MediaManager.cpp
     resources/resources.qrc
+    resources/version.rc
 )
 
 add_executable(AuraIsland WIN32 ${SOURCES})

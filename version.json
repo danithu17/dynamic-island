@@ -1,0 +1,20 @@
+{
+  "name": "AuraIsland",
+  "version": "1.0.0",
+  "build": 1,
+  "releaseDate": "2026-11-09",
+  "description": "Aura Island - Apple iOS 26 Liquid Glass Productivity Hub for Windows",
+  "author": "Aura",
+  "license": "MIT",
+  "platform": "win64",
+  "targetOS": "Windows 10 / 11",
+  "features": [
+    "Shelf (Drag and Drop workspace)",
+    "Clipboard History with sensitive filter",
+    "Notes & Code Snippets",
+    "Gmail OAuth 2.0 Integration",
+    "Dev Hub (Git Watcher, Pomodoro, AI Agent Webhook)",
+    "Media Controls (C++/WinRT)",
+    "Crash-Safe Watchdog Supervisor"
+  ]
+}
