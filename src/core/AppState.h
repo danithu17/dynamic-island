@@ -48,31 +48,31 @@ public:
     static AppState &instance();
 
     QString islandState() const { return m_islandState; }
-    void setIslandState(const QString &state);
+    Q_INVOKABLE void setIslandState(const QString &state);
 
     QString currentTab() const { return m_currentTab; }
-    void setCurrentTab(const QString &tab);
+    Q_INVOKABLE void setCurrentTab(const QString &tab);
 
     bool isPinned() const { return m_isPinned; }
-    void setIsPinned(bool pinned);
+    Q_INVOKABLE void setIsPinned(bool pinned);
 
     int unreadMailCount() const { return m_unreadMailCount; }
-    void setUnreadMailCount(int count);
+    Q_INVOKABLE void setUnreadMailCount(int count);
 
     QString nowPlayingTitle() const { return m_nowPlayingTitle; }
-    void setNowPlayingTitle(const QString &title);
+    Q_INVOKABLE void setNowPlayingTitle(const QString &title);
 
     QString nowPlayingArtist() const { return m_nowPlayingArtist; }
-    void setNowPlayingArtist(const QString &artist);
+    Q_INVOKABLE void setNowPlayingArtist(const QString &artist);
 
     bool isPlaying() const { return m_isPlaying; }
-    void setIsPlaying(bool playing);
+    Q_INVOKABLE void setIsPlaying(bool playing);
 
     QString pomodoroDisplay() const { return m_pomodoroDisplay; }
-    void setPomodoroDisplay(const QString &disp);
+    Q_INVOKABLE void setPomodoroDisplay(const QString &disp);
 
     QString agentStatus() const { return m_agentStatus; }
-    void setAgentStatus(const QString &status);
+    Q_INVOKABLE void setAgentStatus(const QString &status);
 
     QString agentMessage() const { return m_agentMessage; }
     void setAgentMessage(const QString &msg);

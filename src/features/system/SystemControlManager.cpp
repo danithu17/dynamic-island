@@ -43,18 +43,15 @@ SystemControlManager::~SystemControlManager() {
 }
 
 void SystemControlManager::initAudio() {
-    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    (void)hr;
-
     IMMDeviceEnumerator *deviceEnumerator = nullptr;
-    hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_INPROC_SERVER,
-                          __uuidof(IMMDeviceEnumerator), (LPVOID *)&deviceEnumerator);
+    HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
+                                  __uuidof(IMMDeviceEnumerator), (LPVOID *)&deviceEnumerator);
     if (SUCCEEDED(hr) && deviceEnumerator) {
         IMMDevice *defaultDevice = nullptr;
         hr = deviceEnumerator->GetDefaultAudioEndpoint(eRender, eMultimedia, &defaultDevice);
         if (SUCCEEDED(hr) && defaultDevice) {
             IAudioEndpointVolume *endpointVolume = nullptr;
-            hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_INPROC_SERVER,
+            hr = defaultDevice->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL,
                                          nullptr, (LPVOID *)&endpointVolume);
             if (SUCCEEDED(hr) && endpointVolume) {
                 m_endpointVolume = endpointVolume;

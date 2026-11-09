@@ -210,7 +210,7 @@ Item {
             cursorShape: Qt.PointingHandCursor
             onEntered:      root.isHovered = true
             onExited:       root.isHovered = false
-            onClicked:      if (appState) appState.setIslandState("compact")
+            onClicked:      if (appState) appState.toggleExpanded()
             onDoubleClicked: if (appState) appState.toggleExpanded()
         }
     }

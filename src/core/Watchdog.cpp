@@ -7,6 +7,11 @@
 #include <QThread>
 #include <iostream>
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+
 namespace Aura {
 
 bool Watchdog::isWorkerProcess(int argc, char *argv[]) {
@@ -19,6 +24,13 @@ bool Watchdog::isWorkerProcess(int argc, char *argv[]) {
 }
 
 int Watchdog::runSupervisor(int argc, char *argv[]) {
+    HANDLE hMutex = CreateMutexW(NULL, FALSE, L"Local\\AuraIsland_Supervisor_Mutex");
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        std::cout << "[Watchdog] Aura Island is already running." << std::endl;
+        if (hMutex) CloseHandle(hMutex);
+        return 0;
+    }
+
     QCoreApplication app(argc, argv);
     app.setApplicationName("AuraIsland");
     app.setOrganizationName("Aura");
