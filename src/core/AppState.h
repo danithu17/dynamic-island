@@ -24,6 +24,7 @@ class AppState : public QObject {
     Q_PROPERTY(QString toastType READ toastType NOTIFY toastChanged)
     Q_PROPERTY(bool hasToast READ hasToast NOTIFY toastChanged)
     Q_PROPERTY(QString compactEventMessage READ compactEventMessage NOTIFY compactEventMessageChanged)
+    Q_PROPERTY(bool isMusicMorphActive READ isMusicMorphActive NOTIFY musicMorphChanged)
     Q_PROPERTY(bool isQuickCaptureActive READ isQuickCaptureActive WRITE setIsQuickCaptureActive NOTIFY quickCaptureActiveChanged)
 
     // Step 2: System Status & Mascot Properties
@@ -87,6 +88,7 @@ public:
     bool hasToast() const { return !m_toastMessage.isEmpty(); }
 
     QString compactEventMessage() const { return m_compactEventMessage; }
+    bool isMusicMorphActive() const { return m_isMusicMorphActive; }
     bool isQuickCaptureActive() const { return m_isQuickCaptureActive; }
     void setIsQuickCaptureActive(bool active);
 
@@ -117,6 +119,7 @@ public:
     Q_INVOKABLE void showToast(const QString &msg, const QString &type = "info");
     Q_INVOKABLE void dismissToast();
     Q_INVOKABLE void triggerEventCompact(const QString &msg, int durationMs = 3000);
+    Q_INVOKABLE void triggerMusicMorph(const QString &title, const QString &artist, int durationMs = 3500);
     Q_INVOKABLE void openQuickCapture();
     Q_INVOKABLE void closeQuickCapture();
     Q_INVOKABLE void quitApp();
@@ -136,6 +139,7 @@ signals:
     void gitUncommittedCountChanged();
     void toastChanged();
     void compactEventMessageChanged();
+    void musicMorphChanged();
     void quickCaptureActiveChanged();
     void systemStatusChanged();
     void mascotMoodChanged();
@@ -167,12 +171,15 @@ private:
     QTimer *m_toastTimer = nullptr;
 
     QString m_compactEventMessage;
+    bool m_isMusicMorphActive = false;
     QTimer *m_eventTimer = nullptr;
     bool m_isQuickCaptureActive = false;
 
     // Step 2 members
     int m_batteryPercent = 100;
     bool m_isBatteryCharging = false;
+    int m_prevAcLineStatus = -1;
+    bool m_hasLowBatteryWarned = false;
     QString m_batteryTimeRemaining;
     bool m_isBatteryLow = false;
     bool m_isWifiConnected = true;

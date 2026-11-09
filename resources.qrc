@@ -29,6 +29,14 @@
         <file>resources/icons/moon.svg</file>
         <file>resources/icons/git-branch.svg</file>
         <file>resources/icons/timer.svg</file>
+        <file>resources/icons/volume.svg</file>
+        <file>resources/icons/volume-mute.svg</file>
+        <file>resources/icons/sun.svg</file>
+        <file>resources/icons/touchpad.svg</file>
+        <file>resources/icons/lock.svg</file>
+        <file>resources/icons/sleep.svg</file>
+        <file>resources/icons/restart.svg</file>
+        <file>resources/icons/power.svg</file>
         <file>qml/Main.qml</file>
         <file>qml/Island.qml</file>
         <file>qml/Theme.qml</file>
@@ -36,6 +44,7 @@
         <file>qml/components/GlassCard.qml</file>
         <file>qml/components/GlassButton.qml</file>
         <file>qml/components/GlassInput.qml</file>
+        <file>qml/components/GlassSlider.qml</file>
         <file>qml/components/IconImage.qml</file>
         <file>qml/components/SlidingTabBar.qml</file>
         <file>qml/components/ToastNotification.qml</file>

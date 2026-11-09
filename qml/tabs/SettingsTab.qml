@@ -17,6 +17,7 @@ Item {
 
     readonly property var idleWidgetOptions: [
         { id: "clipboard", label: "Clipboard count" },
+        { id: "media", label: "Now playing" },
         { id: "git", label: "Git branch" },
         { id: "pomodoro", label: "Focus timer" },
         { id: "mail", label: "Unread mail" },

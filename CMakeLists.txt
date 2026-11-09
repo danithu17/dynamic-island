@@ -88,6 +88,8 @@ set(SOURCES
     src/features/drop/LocalShareServer.cpp
     src/features/drop/DropManager.h
     src/features/drop/DropManager.cpp
+    src/features/system/SystemControlManager.h
+    src/features/system/SystemControlManager.cpp
     resources.qrc
     resources/version.rc
 )
@@ -116,6 +118,8 @@ target_link_libraries(AuraIsland PRIVATE
     credui
     crypt32
     windowsapp
+    powrprof
+    dxva2
 )
 
 # Set target properties

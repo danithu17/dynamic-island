@@ -31,7 +31,9 @@ AppState::AppState(QObject *parent)
             collapseToIdle();
         }
         m_compactEventMessage.clear();
+        m_isMusicMorphActive = false;
         emit compactEventMessageChanged();
+        emit musicMorphChanged();
     });
 
     connect(m_systemStatusTimer, &QTimer::timeout, this, &AppState::updateSystemStatus);
@@ -41,11 +43,27 @@ AppState::AppState(QObject *parent)
 
 void AppState::triggerEventCompact(const QString &msg, int durationMs) {
     m_compactEventMessage = msg;
+    m_isMusicMorphActive = false;
     emit compactEventMessageChanged();
+    emit musicMorphChanged();
 
-    // If currently idle, morph to compact for 3 seconds then return to idle
+    // If currently idle, morph to compact for durationMs then return to idle
     if (m_islandState == "idle") {
         setIslandState("compact");
+    }
+    m_eventTimer->start(durationMs);
+}
+
+void AppState::triggerMusicMorph(const QString &title, const QString &artist, int durationMs) {
+    m_compactEventMessage = artist.isEmpty() ? title : (title + QStringLiteral(" • ") + artist);
+    m_isMusicMorphActive = true;
+    emit compactEventMessageChanged();
+    emit musicMorphChanged();
+
+    if (m_islandState == "idle") {
+        setIslandState("compact");
+    } else if (m_islandState == "compact") {
+        emit requestWindowResize(280, 36, 18);
     }
     m_eventTimer->start(durationMs);
 }
@@ -77,7 +95,8 @@ void AppState::setIslandState(const QString &state) {
         if (m_islandState == "idle") {
             emit requestWindowResize(120, 32, 16);
         } else if (m_islandState == "compact") {
-            emit requestWindowResize(260, 36, 18);
+            int w = m_isMusicMorphActive ? 280 : 260;
+            emit requestWindowResize(w, 36, 18);
         } else if (m_islandState == "expanded") {
             int h = (m_currentTab == "home") ? 270 : 300;
             emit requestWindowResize(480, h, 36);
@@ -247,6 +266,26 @@ void AppState::updateSystemStatus() {
             m_batteryTimeRemaining = QString("%1h %2m").arg(hrs).arg(mins);
         } else {
             m_batteryTimeRemaining = m_isBatteryCharging ? QStringLiteral("Charging") : QString();
+        }
+
+        // Detect charger plugged / unplugged event morph
+        if (m_prevAcLineStatus != -1 && sps.ACLineStatus != 255) {
+            if (m_prevAcLineStatus == 0 && sps.ACLineStatus == 1) {
+                triggerEventCompact(QStringLiteral("Charging • %1%").arg(m_batteryPercent), 3000);
+            } else if (m_prevAcLineStatus == 1 && sps.ACLineStatus == 0) {
+                triggerEventCompact(QStringLiteral("On Battery • %1%").arg(m_batteryPercent), 3000);
+            }
+        }
+        if (sps.ACLineStatus != 255) {
+            m_prevAcLineStatus = sps.ACLineStatus;
+        }
+
+        // Low battery alert morph
+        if (m_isBatteryLow && !m_hasLowBatteryWarned) {
+            m_hasLowBatteryWarned = true;
+            triggerEventCompact(QStringLiteral("Battery Low • %1%").arg(m_batteryPercent), 4000);
+        } else if (!m_isBatteryLow && m_batteryPercent > 25) {
+            m_hasLowBatteryWarned = false;
         }
     }
 

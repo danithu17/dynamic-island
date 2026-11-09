@@ -15,7 +15,7 @@ Item {
     // ─────────────────────────────────────────────────────────
     readonly property int targetWidth: {
         if (stateName === "idle")     return 120
-        if (stateName === "compact")  return 260
+        if (stateName === "compact")  return (appState && appState.isMusicMorphActive) ? 280 : 260
         if (stateName === "expanded") return 480
         if (stateName === "drop")     return 480
         return 120
@@ -162,6 +162,7 @@ Item {
                 color: Theme.accent
                 source: {
                     var w = settings ? settings.idleWidget : "clipboard"
+                    if (w === "media") return "qrc:/resources/icons/media.svg"
                     if (w === "git") return "qrc:/resources/icons/git-branch.svg"
                     if (w === "pomodoro") return "qrc:/resources/icons/timer.svg"
                     if (w === "mail") return "qrc:/resources/icons/mail.svg"
@@ -181,6 +182,9 @@ Item {
                 maximumLineCount: 1
                 text: {
                     var w = settings ? settings.idleWidget : "clipboard"
+                    if (w === "media") {
+                        return (appState && appState.nowPlayingTitle !== "") ? appState.nowPlayingTitle : "Music"
+                    }
                     if (w === "git") {
                         return (appState && appState.gitBranch !== "") ? appState.gitBranch : "main"
                     }
@@ -278,22 +282,97 @@ Item {
             }
         }
 
-        // Mode B: Short Compact Event Message (3-second morph notification)
+        // Mode B1: Sleek Music Morph Notification (When any track starts / changes)
         Row {
-            visible: appState && !appState.isQuickCaptureActive && appState.compactEventMessage !== ""
+            visible: appState && !appState.isQuickCaptureActive && appState.isMusicMorphActive
             anchors.fill: parent
             anchors.leftMargin: 8
             anchors.rightMargin: 8
             spacing: 8
 
             Rectangle {
-                width: 6; height: 6; radius: 3
-                color: Theme.accent
+                width: 22
+                height: 22
+                radius: 11
+                color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.20)
                 anchors.verticalCenter: parent.verticalCenter
+
+                IconImage {
+                    anchors.centerIn: parent
+                    source: "qrc:/resources/icons/media.svg"
+                    size: 12
+                    color: Theme.accent
+                }
+            }
+
+            Column {
+                width: parent.width - 66
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 1
+
+                Text {
+                    width: parent.width
+                    text: appState ? appState.nowPlayingTitle : "Music"
+                    color: Theme.textPrimary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+
+                Text {
+                    width: parent.width
+                    text: appState ? appState.nowPlayingArtist : ""
+                    color: Theme.textSecondary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 9
+                    elide: Text.ElideRight
+                }
+            }
+
+            EqualizerBars {
+                isPlaying: true
+                anchors.verticalCenter: parent.verticalCenter
+            }
+        }
+
+        // Mode B2: System Event Message (Volume, Brightness, Touchpad, Power, Battery)
+        Row {
+            visible: appState && !appState.isQuickCaptureActive && !appState.isMusicMorphActive && appState.compactEventMessage !== ""
+            anchors.fill: parent
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
+            spacing: 8
+
+            Rectangle {
+                width: 20
+                height: 20
+                radius: 10
+                color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                anchors.verticalCenter: parent.verticalCenter
+
+                IconImage {
+                    anchors.centerIn: parent
+                    size: 11
+                    color: Theme.accent
+                    source: {
+                        var msg = appState ? appState.compactEventMessage : ""
+                        if (msg.indexOf("Volume") !== -1) return "qrc:/resources/icons/volume.svg"
+                        if (msg.indexOf("Mute") !== -1) return "qrc:/resources/icons/volume-mute.svg"
+                        if (msg.indexOf("Brightness") !== -1) return "qrc:/resources/icons/sun.svg"
+                        if (msg.indexOf("Touchpad") !== -1) return "qrc:/resources/icons/touchpad.svg"
+                        if (msg.indexOf("Battery") !== -1 || msg.indexOf("Charging") !== -1) return "qrc:/resources/icons/battery.svg"
+                        if (msg.indexOf("Lock") !== -1) return "qrc:/resources/icons/lock.svg"
+                        if (msg.indexOf("Sleep") !== -1) return "qrc:/resources/icons/sleep.svg"
+                        if (msg.indexOf("Restart") !== -1) return "qrc:/resources/icons/restart.svg"
+                        if (msg.indexOf("Shut") !== -1) return "qrc:/resources/icons/power.svg"
+                        return "qrc:/resources/icons/check.svg"
+                    }
+                }
             }
 
             Text {
-                width: parent.width - 20
+                width: parent.width - 32
                 anchors.verticalCenter: parent.verticalCenter
                 text: appState ? appState.compactEventMessage : ""
                 color: Theme.textPrimary

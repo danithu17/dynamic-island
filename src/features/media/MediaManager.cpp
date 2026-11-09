@@ -39,6 +39,8 @@ void MediaManager::pollTrack() {
                     m_hasTrack != info.hasTrack);
 
     if (changed) {
+        bool isNewSong = (info.hasTrack && info.isPlaying && (m_title != info.title || !m_isPlaying));
+
         m_title = info.hasTrack ? info.title : "No media playing";
         m_artist = info.hasTrack ? info.artist : "Aura Island";
         m_album = info.album;
@@ -48,6 +50,10 @@ void MediaManager::pollTrack() {
         AppState::instance().setNowPlayingTitle(m_title);
         AppState::instance().setNowPlayingArtist(m_artist);
         AppState::instance().setIsPlaying(m_isPlaying);
+
+        if (isNewSong) {
+            AppState::instance().triggerMusicMorph(m_title, m_artist, 3500);
+        }
 
         emit trackChanged();
     }
