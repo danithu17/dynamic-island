@@ -11,6 +11,8 @@ jobs:
   build:
     name: Build Windows x64 (MSVC 2022 + Qt 6.8+)
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -63,6 +65,10 @@ jobs:
           # Run windeployqt with QML scan
           windeployqt.exe --qmldir qml dist\AuraIsland\AuraIsland.exe --compiler-runtime --no-translations --verbose 1
 
+          # List contents to verify executable is present
+          Write-Host "Contents of dist\AuraIsland:"
+          Get-ChildItem -Path dist\AuraIsland | Select-Object Name, Length
+
       - name: Create Zip Package
         run: |
           Compress-Archive -Path dist\AuraIsland\* -DestinationPath AuraIsland-win64.zip -Force
@@ -72,7 +78,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AuraIsland-win64
-          path: AuraIsland-win64.zip
+          path: dist/AuraIsland/
           retention-days: 14
 
       - name: Create GitHub Release
