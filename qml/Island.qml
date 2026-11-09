@@ -68,6 +68,52 @@ Item {
     }
 
     // ─────────────────────────────────────────────────────────
+    // Hover-to-expand and Leave-to-collapse Controllers
+    // ─────────────────────────────────────────────────────────
+    MouseArea {
+        id: islandHoverSensor
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+
+        onEntered: {
+            collapseGraceTimer.stop()
+            if (root.stateName === "idle") {
+                hoverExpandTimer.start()
+            }
+        }
+
+        onExited: {
+            hoverExpandTimer.stop()
+            if (root.stateName === "expanded" && (!appState || !appState.isPinned)) {
+                collapseGraceTimer.start()
+            }
+        }
+    }
+
+    Timer {
+        id: hoverExpandTimer
+        interval: 180
+        repeat: false
+        onTriggered: {
+            if (root.stateName === "idle") {
+                if (appState) appState.setIslandState("expanded")
+            }
+        }
+    }
+
+    Timer {
+        id: collapseGraceTimer
+        interval: 400
+        repeat: false
+        onTriggered: {
+            if (root.stateName === "expanded" && (!appState || !appState.isPinned)) {
+                if (appState) appState.collapseToIdle()
+            }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
     // Pulsing outer ring for drop zone
     // ─────────────────────────────────────────────────────────
     Rectangle {

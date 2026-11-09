@@ -118,6 +118,13 @@ void IslandWindow::checkCursorProximity() {
         GetClientRect(m_hwnd, &rc);
         bool inside = PtInRect(&rc, ptClient);
 
+        // Outside desktop click auto-collapse (when expanded and not pinned)
+        if (!inside && AppState::instance().islandState() == "expanded" && !AppState::instance().isPinned()) {
+            if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) || (GetAsyncKeyState(VK_RBUTTON) & 0x8000)) {
+                AppState::instance().collapseToIdle();
+            }
+        }
+
         if (inside != m_isHovered) {
             m_isHovered = inside;
             // If mouse is inside the island, clear WS_EX_TRANSPARENT so clicks are received

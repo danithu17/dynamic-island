@@ -4,20 +4,20 @@ import QtQuick
 QtObject {
     id: theme
 
-    // Palette: Apple iOS 26 Solid Black Shell & Glass Cards
+    // Palette: Apple iOS 26 Liquid Glass / Solid Deep Obsidian Shell
     readonly property color glassBackground: "#0A0A0C"
-    readonly property color cardBackground: "#1C1C1E"
-    readonly property color glassSurface: "#1C1C1E"
-    readonly property color glassSurfaceHover: "#2A2A2D"
-    readonly property color glassSurfaceActive: "#323236"
-    readonly property color glassBorder: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-    readonly property color glassBorderHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.28)
-    readonly property color glassSpecular: Qt.rgba(1.0, 1.0, 1.0, 0.12)
+    readonly property color cardBackground: "#161618"
+    readonly property color glassSurface: "#18181B"
+    readonly property color glassSurfaceHover: "#232326"
+    readonly property color glassSurfaceActive: "#2A2A2E"
+    readonly property color glassBorder: Qt.rgba(1.0, 1.0, 1.0, 0.09)
+    readonly property color glassBorderHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.22)
+    readonly property color glassSpecular: Qt.rgba(1.0, 1.0, 1.0, 0.14)
 
     // Typography & Accents
     readonly property color textPrimary: "#FFFFFF"
-    readonly property color textSecondary: "#9E9EA8"
-    readonly property color textMuted: "#6B6C77"
+    readonly property color textSecondary: "#A1A1AA"
+    readonly property color textMuted: "#71717A"
     
     // Dynamic Accent color bound to Settings
     readonly property color accent: settings ? settings.accentColor : "#0A84FF"
