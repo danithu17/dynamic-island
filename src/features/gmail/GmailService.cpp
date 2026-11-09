@@ -4,6 +4,7 @@
 #include "../../core/Settings.h"
 #include <QStandardPaths>
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>

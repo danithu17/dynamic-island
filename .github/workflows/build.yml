@@ -52,7 +52,12 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release --verbose
+          cmake --build build --config Release --verbose 2>&1 | Tee-Object -FilePath build.log
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::Build failed! Showing error log tail:"
+            Get-Content build.log -Tail 100
+            exit 1
+          }
 
       - name: Deploy Qt Runtime & Dependencies (windeployqt)
         run: |

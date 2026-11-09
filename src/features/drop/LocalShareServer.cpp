@@ -1,6 +1,8 @@
 #include "LocalShareServer.h"
 #include "QrCode.hpp"
 #include <QNetworkInterface>
+#include <QHostAddress>
+#include <QAbstractSocket>
 #include <QUuid>
 #include <QFile>
 #include <QFileInfo>
