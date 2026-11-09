@@ -9,12 +9,17 @@ on:
 
 jobs:
   build:
-    name: Build Windows x64 (MSVC 2022 + Qt 6.7+)
+    name: Build Windows x64 (MSVC 2022 + Qt 6.8+)
     runs-on: windows-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Set up MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
@@ -27,7 +32,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
-          version: '6.7.2'
+          version: '6.8.0'
           host: 'windows'
           target: 'desktop'
           arch: 'win64_msvc2022_64'
@@ -52,15 +57,11 @@ jobs:
 
       - name: Deploy Qt Runtime & Dependencies (windeployqt)
         run: |
-          $qtBin = (Get-Command qmake.exe).Source | Split-Path
-          $windeployqt = Join-Path $qtBin "windeployqt.exe"
-          Write-Host "Using windeployqt at: $windeployqt"
-
           New-Item -ItemType Directory -Force -Path dist\AuraIsland
           Copy-Item build\AuraIsland.exe dist\AuraIsland\
 
           # Run windeployqt with QML scan
-          & $windeployqt --qmldir qml dist\AuraIsland\AuraIsland.exe --compiler-runtime --no-translations --verbose 1
+          windeployqt.exe --qmldir qml dist\AuraIsland\AuraIsland.exe --compiler-runtime --no-translations --verbose 1
 
       - name: Create Zip Package
         run: |
