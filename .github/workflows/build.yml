@@ -52,7 +52,7 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release
+          cmake --build build --config Release --verbose
 
       - name: Deploy Qt Runtime & Dependencies (windeployqt)
         run: |

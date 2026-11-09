@@ -9,6 +9,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+
 find_package(Qt6 6.5 REQUIRED COMPONENTS
     Core
     Gui

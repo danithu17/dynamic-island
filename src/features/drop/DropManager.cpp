@@ -80,7 +80,7 @@ void DropManager::handleDropSave(const QString &data, const QString &type, const
             QFile::copy(data, destPath);
         }
 
-        ShelfManager::instance().addItem(destPath, fi.fileName(), "file");
+        ShelfManager::instance().addFile(destPath);
     } else {
         // Text or Link
         qint64 ts = QDateTime::currentMSecsSinceEpoch();
@@ -97,7 +97,7 @@ void DropManager::handleDropSave(const QString &data, const QString &type, const
             f.close();
         }
 
-        ShelfManager::instance().addItem(destPath, name.isEmpty() ? fileName : name, type);
+        ShelfManager::instance().addFile(destPath);
     }
 
     m_lastActionMessage = QStringLiteral("Saved");
