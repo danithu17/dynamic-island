@@ -12,6 +12,7 @@ IslandWindow::IslandWindow(QWindow *parent)
     // Window configuration: frameless, topmost, toolwindow, non-focus-stealing
     setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus);
     setColor(QColor(Qt::transparent));
+    setVisible(true);
 
     // Connect to AppState window resize requests
     connect(&AppState::instance(), &AppState::requestWindowResize,
@@ -56,11 +57,15 @@ void IslandWindow::resizeEvent(QResizeEvent *event) {
 }
 
 void IslandWindow::initializeNativeWindow() {
-    m_hwnd = reinterpret_cast<HWND>(winId());
+    if (!m_hwnd) {
+        m_hwnd = reinterpret_cast<HWND>(winId());
+    }
     if (m_hwnd) {
         WindowTweaks::applyIslandWindowStyles(m_hwnd);
         WindowTweaks::applyGlassEffect(m_hwnd);
         WindowTweaks::updateWindowShape(m_hwnd, width(), height(), m_currentRadius);
+        WindowTweaks::setTopmostNoActivate(m_hwnd);
+        ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
         emit nativeWindowReady(m_hwnd);
     }
 }
@@ -83,6 +88,7 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
 
     if (m_hwnd) {
         WindowTweaks::setTopmostNoActivate(m_hwnd);
+        ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
     }
 }
 
@@ -94,6 +100,7 @@ void IslandWindow::onWindowResizeRequested(int width, int height, int radius) {
     }
     if (m_hwnd) {
         WindowTweaks::setTopmostNoActivate(m_hwnd);
+        ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
     }
 }
 
@@ -133,9 +140,6 @@ void IslandWindow::checkCursorProximity() {
 
         if (inside != m_isHovered) {
             m_isHovered = inside;
-            // If mouse is inside the island, clear WS_EX_TRANSPARENT so clicks are received
-            // If outside, clicks pass directly through to windows underneath
-            WindowTweaks::setClickThrough(m_hwnd, !m_isHovered);
             emit hoverChanged();
         }
     }

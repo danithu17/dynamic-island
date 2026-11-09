@@ -124,6 +124,10 @@ int main(int argc, char *argv[]) {
     }
 
     auto *islandWindow = qobject_cast<Aura::IslandWindow *>(engine.rootObjects().first());
+    if (islandWindow) {
+        islandWindow->initializeNativeWindow();
+        islandWindow->show();
+    }
 
     // 8. Fullscreen Detection (Auto-hide during fullscreen games, videos, presentations)
     auto *fullscreenDetector = new Aura::FullscreenDetector(&app);
