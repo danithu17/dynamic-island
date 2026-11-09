@@ -178,7 +178,7 @@ Item {
 
             Rectangle {
                 width: parent.width
-                height: parent.height - 20
+                height: parent.height - 38
                 radius: 12
                 color: Qt.rgba(0.06, 0.07, 0.10, 0.6)
                 border.color: Theme.glassBorder
@@ -204,6 +204,29 @@ Item {
                             }
                         }
                     }
+                }
+            }
+
+            // Word count, line count & character count stats
+            Row {
+                spacing: 12
+                Text {
+                    text: "Lines: " + (scratchText.text.length > 0 ? (scratchText.text.split('\n').length) : 0)
+                    color: Theme.textMuted
+                    font.family: Theme.fontMono
+                    font.pixelSize: 9.5
+                }
+                Text {
+                    text: "Words: " + (scratchText.text.trim().length > 0 ? scratchText.text.trim().split(/\s+/).length : 0)
+                    color: Theme.textMuted
+                    font.family: Theme.fontMono
+                    font.pixelSize: 9.5
+                }
+                Text {
+                    text: "Chars: " + scratchText.text.length
+                    color: Theme.textMuted
+                    font.family: Theme.fontMono
+                    font.pixelSize: 9.5
                 }
             }
         }

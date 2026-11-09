@@ -8,33 +8,76 @@ Item {
 
     Column {
         anchors.fill: parent
-        anchors.margins: 14
-        spacing: 10
+        anchors.margins: 12
+        spacing: 8
 
         // Header
         Row {
             width: parent.width
             height: 28
 
-            Text {
-                text: "Shelf"
-                color: Theme.textPrimary
-                font.family: Theme.fontFamily
-                font.pixelSize: 15
-                font.bold: true
+            Row {
                 anchors.verticalCenter: parent.verticalCenter
-            }
+                spacing: 8
 
+                Text {
+                    text: "Tray"
+                    color: Theme.textPrimary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 15
+                    font.bold: true
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Rectangle {
+                    width: trayCountTxt.implicitWidth + 10
+                    height: 18
+                    radius: 9
+                    color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.2)
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        id: trayCountTxt
+                        anchors.centerIn: parent
+                        text: (shelfManager && shelfManager.model) ? shelfManager.model.rowCount() : "0"
+                        color: Theme.accent
+                        font.family: Theme.fontMono
+                        font.pixelSize: 9.5
+                        font.bold: true
+                    }
+                }
+            }
 
             Row {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 8
+                spacing: 6
+
+                GlassInput {
+                    id: searchInput
+                    placeholderText: "Search tray..."
+                    implicitWidth: 125
+                    implicitHeight: 26
+                    onTextChangedByUser: function(q) {
+                        if (shelfManager) shelfManager.setSearchQuery(q)
+                    }
+                }
 
                 GlassButton {
-                    text: "Clear Unpinned"
+                    text: "Folder"
                     cornerRadius: 6
                     implicitHeight: 26
+                    implicitWidth: 50
+                    onClicked: {
+                        if (shelfManager) shelfManager.openTrayFolder()
+                    }
+                }
+
+                GlassButton {
+                    text: "Clear"
+                    cornerRadius: 6
+                    implicitHeight: 26
+                    implicitWidth: 44
                     onClicked: {
                         if (shelfManager) shelfManager.clearUnpinned()
                     }
@@ -42,31 +85,31 @@ Item {
             }
         }
 
-        // Drop instruction banner / drop target
+        // Drop target banner
         Rectangle {
             width: parent.width
-            height: 48
-            radius: 10
+            height: 38
+            radius: 12
             color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.08)
             border.color: Theme.glassBorder
             border.width: 1
 
             Row {
                 anchors.centerIn: parent
-                spacing: 8
+                spacing: 6
 
                 IconImage {
                     source: "qrc:/resources/icons/drop.svg"
-                    size: 16
+                    size: 14
                     color: Theme.accent
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
                 Text {
-                    text: "Drop files or links here to pin them to your workspace"
+                    text: "Drop files or links here to save to %APPDATA%/tray"
                     color: Theme.textSecondary
                     font.family: Theme.fontFamily
-                    font.pixelSize: 11
+                    font.pixelSize: 10.5
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -85,19 +128,19 @@ Item {
         ListView {
             id: listView
             width: parent.width
-            height: parent.height - 94
+            height: parent.height - 82
             clip: true
-            spacing: 8
+            spacing: 6
             model: shelfManager ? shelfManager.model : null
 
             delegate: GlassCard {
                 width: listView.width
-                implicitHeight: 46
+                implicitHeight: 44
 
                 Row {
                     anchors.fill: parent
                     anchors.margins: 6
-                    spacing: 10
+                    spacing: 8
 
                     IconImage {
                         source: {
@@ -105,7 +148,7 @@ Item {
                             if (model.itemType === "link") return "qrc:/resources/icons/mail.svg"
                             return "qrc:/resources/icons/shelf.svg"
                         }
-                        size: 18
+                        size: 16
                         color: Theme.accent
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -119,7 +162,7 @@ Item {
                             text: model.title
                             color: Theme.textPrimary
                             font.family: Theme.fontFamily
-                            font.pixelSize: 12
+                            font.pixelSize: 11
                             font.weight: Font.Medium
                             elide: Text.ElideMiddle
                             width: parent.width
@@ -129,7 +172,7 @@ Item {
                             text: model.filePath !== "" ? model.filePath : model.itemData
                             color: Theme.textMuted
                             font.family: Theme.fontFamily
-                            font.pixelSize: 10
+                            font.pixelSize: 9.5
                             elide: Text.ElideMiddle
                             width: parent.width
                         }
@@ -138,23 +181,33 @@ Item {
                     Row {
                         anchors.right: parent.right
                         anchors.verticalCenter: parent.verticalCenter
-                        spacing: 6
+                        spacing: 4
 
                         // Open button
                         GlassButton {
                             iconSource: "qrc:/resources/icons/play.svg"
-                            cornerRadius: 5
-                            implicitWidth: 26
-                            implicitHeight: 26
+                            cornerRadius: 4
+                            implicitWidth: 22
+                            implicitHeight: 22
                             onClicked: if (shelfManager) shelfManager.openItem(model.itemId)
+                        }
+
+                        // Reveal in explorer
+                        GlassButton {
+                            iconSource: "qrc:/resources/icons/search.svg"
+                            cornerRadius: 4
+                            implicitWidth: 22
+                            implicitHeight: 22
+                            visible: model.filePath !== ""
+                            onClicked: if (shelfManager) shelfManager.revealInExplorer(model.itemId)
                         }
 
                         // Copy path button
                         GlassButton {
                             iconSource: "qrc:/resources/icons/copy.svg"
-                            cornerRadius: 5
-                            implicitWidth: 26
-                            implicitHeight: 26
+                            cornerRadius: 4
+                            implicitWidth: 22
+                            implicitHeight: 22
                             onClicked: if (shelfManager) shelfManager.copyPath(model.itemId)
                         }
 
@@ -162,9 +215,9 @@ Item {
                         GlassButton {
                             iconSource: "qrc:/resources/icons/pin.svg"
                             iconColor: model.isPinned ? Theme.accent : Theme.textMuted
-                            cornerRadius: 5
-                            implicitWidth: 26
-                            implicitHeight: 26
+                            cornerRadius: 4
+                            implicitWidth: 22
+                            implicitHeight: 22
                             onClicked: if (shelfManager) shelfManager.togglePin(model.itemId)
                         }
 
@@ -172,9 +225,9 @@ Item {
                         GlassButton {
                             iconSource: "qrc:/resources/icons/trash.svg"
                             isDanger: true
-                            cornerRadius: 5
-                            implicitWidth: 26
-                            implicitHeight: 26
+                            cornerRadius: 4
+                            implicitWidth: 22
+                            implicitHeight: 22
                             onClicked: if (shelfManager) shelfManager.removeItem(model.itemId)
                         }
                     }
@@ -184,10 +237,10 @@ Item {
             Text {
                 visible: listView.count === 0
                 anchors.centerIn: parent
-                text: "Shelf is empty. Drag files or code snippets here."
+                text: "Tray is empty. Save files or snippets here."
                 color: Theme.textMuted
                 font.family: Theme.fontFamily
-                font.pixelSize: 12
+                font.pixelSize: 11
             }
         }
     }

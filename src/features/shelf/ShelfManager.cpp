@@ -3,6 +3,9 @@
 #include "../../core/AppState.h"
 #include <QFileInfo>
 #include <QDesktopServices>
+#include <QProcess>
+#include <QStandardPaths>
+#include <QDir>
 #include <QClipboard>
 #include <QGuiApplication>
 #include <QUrl>
@@ -207,6 +210,56 @@ void ShelfManager::clearUnpinned() {
         QSqlQuery q(db);
         q.exec("DELETE FROM shelf_items WHERE is_pinned = 0");
         loadFromDatabase();
+    }
+}
+
+void ShelfManager::revealInExplorer(int id) {
+    for (int i = 0; i < m_model.rowCount(); ++i) {
+        const ShelfItem *item = m_model.getItemAt(i);
+        if (item && item->id == id && !item->filePath.isEmpty()) {
+            QString nativePath = QDir::toNativeSeparators(item->filePath);
+            QProcess::startDetached("explorer.exe", QStringList() << "/select," << nativePath);
+            break;
+        }
+    }
+}
+
+void ShelfManager::openTrayFolder() {
+    QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QString trayDir = appData + "/tray";
+    QDir().mkpath(trayDir);
+    QDesktopServices::openUrl(QUrl::fromLocalFile(trayDir));
+}
+
+void ShelfManager::setSearchQuery(const QString &query) {
+    auto db = DatabaseManager::instance().database();
+    if (!db.isOpen()) return;
+
+    QString sql = "SELECT id, type, title, file_path, data, is_pinned, created_at FROM shelf_items";
+    if (!query.trimmed().isEmpty()) {
+        sql += " WHERE title LIKE :q OR file_path LIKE :q OR data LIKE :q";
+    }
+    sql += " ORDER BY is_pinned DESC, id DESC";
+
+    QSqlQuery q(db);
+    q.prepare(sql);
+    if (!query.trimmed().isEmpty()) {
+        q.bindValue(":q", "%" + query.trimmed() + "%");
+    }
+    if (q.exec()) {
+        std::vector<ShelfItem> items;
+        while (q.next()) {
+            ShelfItem item;
+            item.id = q.value(0).toInt();
+            item.type = q.value(1).toString();
+            item.title = q.value(2).toString();
+            item.filePath = q.value(3).toString();
+            item.data = q.value(4).toString();
+            item.isPinned = (q.value(5).toInt() == 1);
+            item.createdAt = q.value(6).toDateTime();
+            items.push_back(std::move(item));
+        }
+        m_model.setItems(std::move(items));
     }
 }
 

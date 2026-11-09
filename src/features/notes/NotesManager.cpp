@@ -193,11 +193,29 @@ void NotesManager::quickCapture(const QString &text) {
 
 QString NotesManager::expandVariables(const QString &templateCode) const {
     QString expanded = templateCode;
-    expanded.replace("{date}", QDate::currentDate().toString("yyyy-MM-dd"));
-    expanded.replace("{time}", QTime::currentTime().toString("HH:mm:ss"));
-    expanded.replace("{uuid}", QUuid::createUuid().toString(QUuid::WithoutBraces));
-    expanded.replace("{clipboard}", QGuiApplication::clipboard()->text());
-    expanded.replace("{cursor}", ""); // Remove cursor indicator
+    QString dateStr = QDate::currentDate().toString("yyyy-MM-dd");
+    QString timeStr = QTime::currentTime().toString("HH:mm:ss");
+    QString uuidStr = QUuid::createUuid().toString(QUuid::WithoutBraces);
+    QString clipStr = QGuiApplication::clipboard()->text();
+
+    expanded.replace("${DATE}", dateStr);
+    expanded.replace("${date}", dateStr);
+    expanded.replace("{date}", dateStr);
+
+    expanded.replace("${TIME}", timeStr);
+    expanded.replace("${time}", timeStr);
+    expanded.replace("{time}", timeStr);
+
+    expanded.replace("${UUID}", uuidStr);
+    expanded.replace("${uuid}", uuidStr);
+    expanded.replace("{uuid}", uuidStr);
+
+    expanded.replace("${CLIPBOARD}", clipStr);
+    expanded.replace("${clipboard}", clipStr);
+    expanded.replace("{clipboard}", clipStr);
+
+    expanded.replace("${CURSOR}", "");
+    expanded.replace("{cursor}", "");
     return expanded;
 }
 

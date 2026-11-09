@@ -300,6 +300,23 @@ Item {
                             onClicked: if (clipboardManager) clipboardManager.minifyJson(model.itemId)
                         }
 
+                        // URL Actions
+                        GlassButton {
+                            visible: model.itemType === "url"
+                            text: "Open Link"
+                            cornerRadius: 4
+                            implicitHeight: 18
+                            onClicked: Qt.openUrlExternally(model.textData.trim())
+                        }
+
+                        GlassButton {
+                            visible: model.itemType === "url"
+                            text: "URL Enc"
+                            cornerRadius: 4
+                            implicitHeight: 18
+                            onClicked: if (clipboardManager) clipboardManager.urlEncode(model.itemId)
+                        }
+
                         // Base64 Actions
                         GlassButton {
                             text: "Base64"
@@ -310,17 +327,46 @@ Item {
 
                         // Case Transformations
                         GlassButton {
-                            text: "camelCase"
+                            text: "camel"
                             cornerRadius: 4
                             implicitHeight: 18
                             onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "camel")
                         }
 
                         GlassButton {
-                            text: "snake_case"
+                            text: "snake"
                             cornerRadius: 4
                             implicitHeight: 18
                             onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "snake")
+                        }
+
+                        GlassButton {
+                            text: "kebab"
+                            cornerRadius: 4
+                            implicitHeight: 18
+                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "kebab")
+                        }
+
+                        GlassButton {
+                            text: "Pascal"
+                            cornerRadius: 4
+                            implicitHeight: 18
+                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "pascal")
+                        }
+
+                        GlassButton {
+                            text: "UPPER"
+                            cornerRadius: 4
+                            implicitHeight: 18
+                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "upper")
+                        }
+
+                        // Trim Whitespace
+                        GlassButton {
+                            text: "Trim"
+                            cornerRadius: 4
+                            implicitHeight: 18
+                            onClicked: if (clipboardManager) clipboardManager.trimWhitespace(model.itemId)
                         }
 
                         // Wrap Markdown

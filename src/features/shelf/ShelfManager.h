@@ -23,6 +23,9 @@ public:
     Q_INVOKABLE void togglePin(int id);
     Q_INVOKABLE void removeItem(int id);
     Q_INVOKABLE void clearUnpinned();
+    Q_INVOKABLE void revealInExplorer(int id);
+    Q_INVOKABLE void openTrayFolder();
+    Q_INVOKABLE void setSearchQuery(const QString &query);
 
     void loadFromDatabase();
 
