@@ -38,7 +38,6 @@ int Watchdog::runSupervisor(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
     app.setApplicationName("AuraIsland");
     app.setOrganizationName("Aura");
-    Aura::Logger::init();
 
     QString appPath = QCoreApplication::applicationFilePath();
     QStringList workerArgs;

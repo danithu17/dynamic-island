@@ -62,6 +62,12 @@ void WindowTweaks::applyIslandWindowStyles(HWND hwnd) {
     DWMNCRENDERINGPOLICY ncrp = DWMNCRP_DISABLED;
     DwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
 
+    // Remove legacy CS_DROPSHADOW if present in window class
+    ULONG_PTR classStyle = GetClassLongPtrW(hwnd, GCL_STYLE);
+    if (classStyle & CS_DROPSHADOW) {
+        SetClassLongPtrW(hwnd, GCL_STYLE, classStyle & ~CS_DROPSHADOW);
+    }
+
     // Disable Windows 11 rounded corners on native window (DWMWCP_DONOTROUND = 1)
     int cornerPref = 1; // DWMWCP_DONOTROUND
     DwmSetWindowAttribute(hwnd, 33 /* DWMWA_WINDOW_CORNER_PREFERENCE */, &cornerPref, sizeof(cornerPref));

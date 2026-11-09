@@ -286,7 +286,7 @@ Item {
                 anchors.fill: parent
                 radius: 10
                 color: Qt.rgba(0.2, 0.05, 0.05, 0.90)
-                border.color: Theme.accentRed
+                border.color: Theme.danger
                 border.width: 1
                 visible: root.pendingPowerAction !== ""
 

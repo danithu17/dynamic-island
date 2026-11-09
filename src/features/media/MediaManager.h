@@ -40,12 +40,14 @@ private slots:
 
 private:
     explicit MediaManager(QObject *parent = nullptr);
+    void applyTrackInfo(const QString &title, const QString &artist, const QString &album, bool isPlaying, bool hasTrack);
 
     QString m_title = "No media playing";
     QString m_artist = "Idle";
     QString m_album;
     bool m_isPlaying = false;
     bool m_hasTrack = false;
+    bool m_isPolling = false;
     QTimer *m_timer = nullptr;
 };
 

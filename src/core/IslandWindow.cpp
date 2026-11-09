@@ -76,13 +76,11 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
     if (!targetScreen) return;
 
     QRect screenGeo = targetScreen->geometry();
-    // 8px transparent padding buffer so the pill edges never touch native window boundary
-    const int pad = 8;
-    int winWidth = targetWidth + (pad * 2);
-    int winHeight = targetHeight + (pad * 2);
+    int winWidth = targetWidth;
+    int winHeight = targetHeight;
 
     int x = screenGeo.x() + (screenGeo.width() - winWidth) / 2;
-    int y = screenGeo.y() + 8 - pad; // Align top of pill at 8px from screen edge
+    int y = screenGeo.y() + 8; // Align top of pill at 8px from screen edge
 
     setGeometry(x, y, winWidth, winHeight);
 

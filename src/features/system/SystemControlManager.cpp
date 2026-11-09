@@ -24,14 +24,16 @@ SystemControlManager &SystemControlManager::instance() {
 
 SystemControlManager::SystemControlManager(QObject *parent)
     : QObject(parent), m_pollTimer(new QTimer(this)) {
-    initAudio();
-    updateVolumeFromSystem();
-    updateBrightnessFromSystem();
-    updateTouchpadFromSystem();
+    // Delay hardware queries by 500ms so window is created and shown instantly!
+    QTimer::singleShot(500, this, [this]() {
+        initAudio();
+        updateVolumeFromSystem();
+        updateBrightnessFromSystem();
+        updateTouchpadFromSystem();
+        m_pollTimer->start(2000);
+    });
 
     connect(m_pollTimer, &QTimer::timeout, this, &SystemControlManager::pollSystemSettings);
-    m_pollTimer->setInterval(2000); // Check every 2s for external changes
-    m_pollTimer->start();
 }
 
 SystemControlManager::~SystemControlManager() {
