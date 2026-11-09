@@ -1,0 +1,44 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/icons/app-icon.svg</file>
+        <file>resources/icons/shelf.svg</file>
+        <file>resources/icons/mail.svg</file>
+        <file>resources/icons/clipboard.svg</file>
+        <file>resources/icons/notes.svg</file>
+        <file>resources/icons/dev.svg</file>
+        <file>resources/icons/media.svg</file>
+        <file>resources/icons/settings.svg</file>
+        <file>resources/icons/close.svg</file>
+        <file>resources/icons/search.svg</file>
+        <file>resources/icons/copy.svg</file>
+        <file>resources/icons/pin.svg</file>
+        <file>resources/icons/trash.svg</file>
+        <file>resources/icons/play.svg</file>
+        <file>resources/icons/pause.svg</file>
+        <file>resources/icons/next.svg</file>
+        <file>resources/icons/prev.svg</file>
+        <file>resources/icons/check.svg</file>
+        <file>resources/icons/drop.svg</file>
+        <file>resources/icons/git-branch.svg</file>
+        <file>resources/icons/timer.svg</file>
+        <file>qml/Main.qml</file>
+        <file>qml/Island.qml</file>
+        <file>qml/Theme.qml</file>
+        <file>qml/components/GlassPill.qml</file>
+        <file>qml/components/GlassCard.qml</file>
+        <file>qml/components/GlassButton.qml</file>
+        <file>qml/components/GlassInput.qml</file>
+        <file>qml/components/IconImage.qml</file>
+        <file>qml/components/SlidingTabBar.qml</file>
+        <file>qml/components/ToastNotification.qml</file>
+        <file>qml/components/EqualizerBars.qml</file>
+        <file>qml/components/DropZone.qml</file>
+        <file>qml/tabs/ShelfTab.qml</file>
+        <file>qml/tabs/MailTab.qml</file>
+        <file>qml/tabs/ClipboardTab.qml</file>
+        <file>qml/tabs/NotesTab.qml</file>
+        <file>qml/tabs/DevTab.qml</file>
+        <file>qml/tabs/MediaTab.qml</file>
+        <file>qml/tabs/SettingsTab.qml</file>
+    </qresource>
+</RCC>

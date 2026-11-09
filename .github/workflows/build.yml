@@ -1,0 +1,84 @@
+name: Build Aura Island
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build Windows x64 (MSVC 2022 + Qt 6.7+)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up MSVC Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install Ninja
+        run: choco install ninja
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.2'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+          modules: 'qtnetworkauth'
+          cache: true
+
+      - name: Cache CMake build artifacts
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}-${{ hashFiles('**/*.cpp') }}-${{ hashFiles('**/*.h') }}
+          restore-keys: |
+            ${{ runner.os }}-cmake-
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build --config Release
+
+      - name: Deploy Qt Runtime & Dependencies (windeployqt)
+        run: |
+          $qtBin = (Get-Command qmake.exe).Source | Split-Path
+          $windeployqt = Join-Path $qtBin "windeployqt.exe"
+          Write-Host "Using windeployqt at: $windeployqt"
+
+          New-Item -ItemType Directory -Force -Path dist\AuraIsland
+          Copy-Item build\AuraIsland.exe dist\AuraIsland\
+
+          # Run windeployqt with QML scan
+          & $windeployqt --qmldir qml dist\AuraIsland\AuraIsland.exe --compiler-runtime --no-translations --verbose 1
+
+      - name: Create Zip Package
+        run: |
+          Compress-Archive -Path dist\AuraIsland\* -DestinationPath AuraIsland-win64.zip -Force
+          Write-Host "Package created: AuraIsland-win64.zip"
+
+      - name: Upload Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AuraIsland-win64
+          path: AuraIsland-win64.zip
+          retention-days: 14
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: AuraIsland-win64.zip
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
