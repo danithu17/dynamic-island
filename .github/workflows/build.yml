@@ -23,6 +23,11 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Disable WindowsApps Python redirector
+        shell: powershell
+        run: |
+          Remove-Item "$env:LOCALAPPDATA\Microsoft\WindowsApps\python*.exe" -Force -ErrorAction SilentlyContinue
+
       - name: Set up MSVC Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
         with:
@@ -40,14 +45,6 @@ jobs:
           arch: 'win64_msvc2022_64'
           modules: 'qtnetworkauth'
           cache: true
-
-      - name: Cache CMake build artifacts
-        uses: actions/cache@v4
-        with:
-          path: build
-          key: ${{ runner.os }}-cmake-${{ hashFiles('**/CMakeLists.txt') }}-${{ hashFiles('**/*.cpp') }}-${{ hashFiles('**/*.h') }}
-          restore-keys: |
-            ${{ runner.os }}-cmake-
 
       - name: Configure CMake
         run: |

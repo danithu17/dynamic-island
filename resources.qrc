@@ -20,6 +20,7 @@
         <file>resources/icons/prev.svg</file>
         <file>resources/icons/check.svg</file>
         <file>resources/icons/drop.svg</file>
+        <file>resources/icons/phone.svg</file>
         <file>resources/icons/git-branch.svg</file>
         <file>resources/icons/timer.svg</file>
         <file>qml/Main.qml</file>

@@ -53,12 +53,22 @@ void WindowTweaks::applyIslandWindowStyles(HWND hwnd) {
     style &= ~WS_THICKFRAME;
     style &= ~WS_MINIMIZEBOX;
     style &= ~WS_MAXIMIZEBOX;
+    style &= ~WS_BORDER;
+    style &= ~WS_DLGFRAME;
     style |= WS_POPUP;
     SetWindowLongPtr(hwnd, GWL_STYLE, style);
 
     // Disable DWM non-client rendering to prevent top window shadow / frame ears
     DWMNCRENDERINGPOLICY ncrp = DWMNCRP_DISABLED;
     DwmSetWindowAttribute(hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(ncrp));
+
+    // Disable Windows 11 rounded corners on native window (DWMWCP_DONOTROUND = 1)
+    int cornerPref = 1; // DWMWCP_DONOTROUND
+    DwmSetWindowAttribute(hwnd, 33 /* DWMWA_WINDOW_CORNER_PREFERENCE */, &cornerPref, sizeof(cornerPref));
+
+    // Disable DWM window border color
+    COLORREF noBorder = 0xFFFFFFFE; // DWMWA_COLOR_NONE
+    DwmSetWindowAttribute(hwnd, 34 /* DWMWA_BORDER_COLOR */, &noBorder, sizeof(noBorder));
 
     // Set topmost without activating
     SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0,
@@ -68,11 +78,8 @@ void WindowTweaks::applyIslandWindowStyles(HWND hwnd) {
 void WindowTweaks::applyGlassEffect(HWND hwnd) {
     if (!hwnd) return;
 
-    // Extend DWM frame into client area with -1 margins.
-    // This turns the native window background into a true transparent alpha-compositing canvas.
-    // Qt Quick with setColor(Qt::transparent) will render directly on the desktop with clean,
-    // antialiased Liquid Glass borders and shadows — without any ugly opaque Windows 11 gray boxes!
-    MARGINS margins = {-1, -1, -1, -1};
+    // Use 0 margins so DWM does not draw a rectangular frame shadow on our custom rounded pill
+    MARGINS margins = {0, 0, 0, 0};
     DwmExtendFrameIntoClientArea(hwnd, &margins);
 }
 

@@ -80,6 +80,12 @@ set(SOURCES
     src/features/media/WinRtMediaBridge.cpp
     src/features/media/MediaManager.h
     src/features/media/MediaManager.cpp
+    src/features/drop/QrCode.hpp
+    src/features/drop/QrCode.cpp
+    src/features/drop/LocalShareServer.h
+    src/features/drop/LocalShareServer.cpp
+    src/features/drop/DropManager.h
+    src/features/drop/DropManager.cpp
     resources.qrc
     resources/version.rc
 )

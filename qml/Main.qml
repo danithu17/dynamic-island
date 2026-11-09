@@ -9,6 +9,6 @@ IslandWindow {
 
     Island {
         id: islandItem
-        anchors.fill: parent
+        anchors.centerIn: parent
     }
 }

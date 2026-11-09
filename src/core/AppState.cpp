@@ -65,9 +65,10 @@ void AppState::setIslandState(const QString &state) {
         } else if (m_islandState == "compact") {
             emit requestWindowResize(260, 36, 18);
         } else if (m_islandState == "expanded") {
-            emit requestWindowResize(560, 340, 32);
+            int h = (m_currentTab == "home") ? 270 : 300;
+            emit requestWindowResize(480, h, 36);
         } else if (m_islandState == "drop") {
-            emit requestWindowResize(400, 140, 24);
+            emit requestWindowResize(480, 200, 24);
         }
     }
 }
@@ -76,6 +77,10 @@ void AppState::setCurrentTab(const QString &tab) {
     if (m_currentTab != tab) {
         m_currentTab = tab;
         emit currentTabChanged();
+        if (m_islandState == "expanded") {
+            int h = (m_currentTab == "home") ? 270 : 300;
+            emit requestWindowResize(480, h, 36);
+        }
     }
 }
 

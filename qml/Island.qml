@@ -16,32 +16,39 @@ Item {
     readonly property int targetWidth: {
         if (stateName === "idle")     return 120
         if (stateName === "compact")  return 260
-        if (stateName === "expanded") return 560
-        if (stateName === "drop")     return 400
+        if (stateName === "expanded") return 480
+        if (stateName === "drop")     return 480
         return 120
     }
 
     readonly property int targetHeight: {
         if (stateName === "idle")     return 32
         if (stateName === "compact")  return 36
-        if (stateName === "expanded") return 340
-        if (stateName === "drop")     return 140
+        if (stateName === "expanded") return (appState && appState.currentTab === "home") ? 270 : 300
+        if (stateName === "drop")     return 200
         return 32
     }
 
     readonly property int targetRadius: {
         if (stateName === "idle")     return 16
         if (stateName === "compact")  return 18
-        if (stateName === "expanded") return 32
+        if (stateName === "expanded") return 36
         if (stateName === "drop")     return 24
         return 16
     }
 
     // ─────────────────────────────────────────────────────────
-    // Dimensions fill parent (Window)
+    // Fixed Dimensions based on Island State
     // ─────────────────────────────────────────────────────────
-    width:  parent ? parent.width : targetWidth
-    height: parent ? parent.height : targetHeight
+    width:  targetWidth
+    height: targetHeight
+
+    Behavior on width {
+        SmoothedAnimation { duration: Theme.animDurationNormal; easing.type: Easing.OutCubic }
+    }
+    Behavior on height {
+        SmoothedAnimation { duration: Theme.animDurationNormal; easing.type: Easing.OutCubic }
+    }
 
     // ─────────────────────────────────────────────────────────
     // Glass Pill Background

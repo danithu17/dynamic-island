@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDesktopServices>
+#include <QUrlQuery>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QProcessEnvironment>
@@ -32,7 +33,7 @@ GmailService::GmailService(QObject *parent)
 
     m_oauth->setAuthorizationUrl(QUrl("https://accounts.google.com/o/oauth2/v2/auth"));
     m_oauth->setAccessTokenUrl(QUrl("https://oauth2.googleapis.com/token"));
-    m_oauth->setScope("https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify");
+    m_oauth->setScope("https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.compose");
 
     connect(m_oauth, &QOAuth2AuthorizationCodeFlow::granted, this, &GmailService::onAuthenticated);
     connect(m_oauth, &QOAuth2AuthorizationCodeFlow::error, this, &GmailService::onAuthFailed);
@@ -297,6 +298,70 @@ void GmailService::archiveMessage(const QString &id) {
             int current = AppState::instance().unreadMailCount();
             if (current > 0) AppState::instance().setUnreadMailCount(current - 1);
             AppState::instance().showToast("Email archived", "info");
+        }
+    });
+}
+
+void GmailService::createDraft(const QString &subject, const QString &body, const QString &attachmentPath) {
+    if (!m_isAuthenticated) {
+        // Fallback: Open web compose in default browser
+        QUrl url("https://mail.google.com/mail/?view=cm&fs=1");
+        QUrlQuery query;
+        if (!subject.isEmpty()) query.addQueryItem("su", subject);
+        if (!body.isEmpty()) query.addQueryItem("body", body);
+        url.setQuery(query);
+        QDesktopServices::openUrl(url);
+        return;
+    }
+
+    // Compose RFC 2822 email message
+    QString rawEmail;
+    if (attachmentPath.isEmpty() || !QFile::exists(attachmentPath)) {
+        rawEmail = QString("Subject: %1\r\nContent-Type: text/plain; charset=\"UTF-8\"\r\n\r\n%2")
+                       .arg(subject.isEmpty() ? "Shared via Aura Island" : subject)
+                       .arg(body);
+    } else {
+        QFile attachFile(attachmentPath);
+        QByteArray fileBytes;
+        if (attachFile.open(QIODevice::ReadOnly)) {
+            fileBytes = attachFile.readAll();
+        }
+        QString fileName = QFileInfo(attachmentPath).fileName();
+        QString boundary = "===AuraIslandBoundary===";
+        rawEmail = QString("Subject: %1\r\nMIME-Version: 1.0\r\nContent-Type: multipart/mixed; boundary=\"%2\"\r\n\r\n"
+                           "--%2\r\nContent-Type: text/plain; charset=\"UTF-8\"\r\n\r\n%3\r\n\r\n"
+                           "--%2\r\nContent-Type: application/octet-stream; name=\"%4\"\r\n"
+                           "Content-Disposition: attachment; filename=\"%4\"\r\n"
+                           "Content-Transfer-Encoding: base64\r\n\r\n%5\r\n\r\n--%2--")
+                       .arg(subject.isEmpty() ? ("Attached: " + fileName) : subject)
+                       .arg(boundary)
+                       .arg(body)
+                       .arg(fileName)
+                       .arg(QString::fromLatin1(fileBytes.toBase64()));
+    }
+
+    // URL-safe base64 encode
+    QByteArray base64Url = rawEmail.toUtf8().toBase64(QByteArray::Base64UrlEncoding | QByteArray::OmitTrailingEquals);
+
+    QJsonObject messageObj;
+    messageObj["raw"] = QString::fromLatin1(base64Url);
+
+    QJsonObject draftObj;
+    draftObj["message"] = messageObj;
+
+    QNetworkRequest request(QUrl("https://gmail.googleapis.com/gmail/v1/users/me/drafts"));
+    request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    request.setRawHeader("Authorization", "Bearer " + m_oauth->token().toUtf8());
+
+    QNetworkReply *reply = m_network->post(request, QJsonDocument(draftObj).toJson(QJsonDocument::Compact));
+    connect(reply, &QNetworkReply::finished, this, [reply]() {
+        reply->deleteLater();
+        if (reply->error() == QNetworkReply::NoError) {
+            qInfo() << "Draft successfully created in Gmail.";
+            QDesktopServices::openUrl(QUrl("https://mail.google.com/mail/u/0/#drafts"));
+        } else {
+            qWarning() << "Failed to create draft in Gmail API:" << reply->errorString();
+            QDesktopServices::openUrl(QUrl("https://mail.google.com/mail/u/0/#drafts"));
         }
     });
 }

@@ -30,6 +30,7 @@ public:
     Q_INVOKABLE void openMessage(const QString &id);
     Q_INVOKABLE void markAsRead(const QString &id);
     Q_INVOKABLE void archiveMessage(const QString &id);
+    Q_INVOKABLE void createDraft(const QString &subject, const QString &body, const QString &attachmentPath = QString());
 
     void setPollingPaused(bool paused);
 

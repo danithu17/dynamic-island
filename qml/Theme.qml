@@ -4,14 +4,15 @@ import QtQuick
 QtObject {
     id: theme
 
-    // Palette: Apple iOS 26 Liquid Glass
-    readonly property color glassBackground: Qt.rgba(0.08, 0.09, 0.12, 0.88)
-    readonly property color glassSurface: Qt.rgba(0.15, 0.16, 0.22, 0.65)
-    readonly property color glassSurfaceHover: Qt.rgba(0.22, 0.24, 0.32, 0.75)
-    readonly property color glassSurfaceActive: Qt.rgba(0.28, 0.30, 0.40, 0.85)
-    readonly property color glassBorder: Qt.rgba(1.0, 1.0, 1.0, 0.14)
+    // Palette: Apple iOS 26 Solid Black Shell & Glass Cards
+    readonly property color glassBackground: "#0A0A0C"
+    readonly property color cardBackground: "#1C1C1E"
+    readonly property color glassSurface: "#1C1C1E"
+    readonly property color glassSurfaceHover: "#2A2A2D"
+    readonly property color glassSurfaceActive: "#323236"
+    readonly property color glassBorder: Qt.rgba(1.0, 1.0, 1.0, 0.12)
     readonly property color glassBorderHighlight: Qt.rgba(1.0, 1.0, 1.0, 0.28)
-    readonly property color glassSpecular: Qt.rgba(1.0, 1.0, 1.0, 0.18)
+    readonly property color glassSpecular: Qt.rgba(1.0, 1.0, 1.0, 0.12)
 
     // Typography & Accents
     readonly property color textPrimary: "#FFFFFF"

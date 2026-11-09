@@ -21,6 +21,7 @@
 #include "features/gmail/GmailService.h"
 #include "features/dev/DevManager.h"
 #include "features/media/MediaManager.h"
+#include "features/drop/DropManager.h"
 
 int main(int argc, char *argv[]) {
     // 1. Crash-safe supervisor watchdog
@@ -83,6 +84,7 @@ int main(int argc, char *argv[]) {
     context->setContextProperty("gmailService", &Aura::GmailService::instance());
     context->setContextProperty("devManager", &Aura::DevManager::instance());
     context->setContextProperty("mediaManager", &Aura::MediaManager::instance());
+    context->setContextProperty("dropManager", &Aura::DropManager::instance());
 
     // 7. Load QML Interface
     const QUrl url(QStringLiteral("qrc:/qml/Main.qml"));
