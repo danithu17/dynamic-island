@@ -47,6 +47,9 @@ void DropManager::handleDropMail(const QString &data, const QString &type, const
     emit lastActionMessageChanged();
     emit dropActionCompleted("mail", m_lastActionMessage);
 
+    AppState::instance().setMascotMood("squint");
+    QTimer::singleShot(1500, []() { AppState::instance().setMascotMood("normal"); });
+
     AppState::instance().showToast("Draft ready in Gmail", "success");
     QTimer::singleShot(1500, []() {
         AppState::instance().collapseToIdle();
@@ -104,6 +107,9 @@ void DropManager::handleDropSave(const QString &data, const QString &type, const
     emit lastActionMessageChanged();
     emit dropActionCompleted("save", m_lastActionMessage);
 
+    AppState::instance().setMascotMood("squint");
+    QTimer::singleShot(1500, []() { AppState::instance().setMascotMood("normal"); });
+
     AppState::instance().showToast("Saved to Tray", "success");
     QTimer::singleShot(1500, []() {
         AppState::instance().collapseToIdle();
@@ -128,6 +134,9 @@ void DropManager::handleDropPhone(const QString &data, const QString &type, cons
         m_lastActionMessage = QStringLiteral("Scan to download");
         emit lastActionMessageChanged();
         emit dropActionCompleted("phone", m_lastActionMessage);
+
+        AppState::instance().setMascotMood("squint");
+        QTimer::singleShot(1500, []() { AppState::instance().setMascotMood("normal"); });
 
         AppState::instance().showToast("Scan QR to download", "info");
         // Note: For QR code, per requirement: "QR stays until I dismiss it or it expires"

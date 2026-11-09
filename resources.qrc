@@ -21,6 +21,12 @@
         <file>resources/icons/check.svg</file>
         <file>resources/icons/drop.svg</file>
         <file>resources/icons/phone.svg</file>
+        <file>resources/icons/home.svg</file>
+        <file>resources/icons/wifi.svg</file>
+        <file>resources/icons/bluetooth.svg</file>
+        <file>resources/icons/battery.svg</file>
+        <file>resources/icons/calendar.svg</file>
+        <file>resources/icons/moon.svg</file>
         <file>resources/icons/git-branch.svg</file>
         <file>resources/icons/timer.svg</file>
         <file>qml/Main.qml</file>
@@ -35,6 +41,9 @@
         <file>qml/components/ToastNotification.qml</file>
         <file>qml/components/EqualizerBars.qml</file>
         <file>qml/components/DropZone.qml</file>
+        <file>qml/components/MascotEyes.qml</file>
+        <file>qml/components/StatusRow.qml</file>
+        <file>qml/tabs/HomeTab.qml</file>
         <file>qml/tabs/ShelfTab.qml</file>
         <file>qml/tabs/MailTab.qml</file>
         <file>qml/tabs/ClipboardTab.qml</file>

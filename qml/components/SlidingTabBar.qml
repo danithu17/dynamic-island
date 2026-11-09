@@ -10,12 +10,13 @@ Item {
     implicitWidth: 480
 
     readonly property var tabs: [
-        { id: "shelf", label: "Shelf", icon: "qrc:/resources/icons/shelf.svg" },
-        { id: "mail", label: "Mail", icon: "qrc:/resources/icons/mail.svg", badge: (appState ? appState.unreadMailCount : 0) },
+        { id: "home", label: "Home", icon: "qrc:/resources/icons/home.svg" },
+        { id: "shelf", label: "Tray", icon: "qrc:/resources/icons/shelf.svg" },
         { id: "clipboard", label: "Clips", icon: "qrc:/resources/icons/clipboard.svg" },
         { id: "notes", label: "Notes", icon: "qrc:/resources/icons/notes.svg" },
-        { id: "dev", label: "Dev", icon: "qrc:/resources/icons/dev.svg", badge: (appState ? (appState.agentStatus === "needs_approval" ? "!" : "") : "") },
         { id: "media", label: "Media", icon: "qrc:/resources/icons/media.svg" },
+        { id: "mail", label: "Mail", icon: "qrc:/resources/icons/mail.svg", badge: (appState ? appState.unreadMailCount : 0) },
+        { id: "dev", label: "Dev", icon: "qrc:/resources/icons/dev.svg", badge: (appState ? (appState.agentStatus === "needs_approval" ? "!" : "") : "") },
         { id: "settings", label: "", icon: "qrc:/resources/icons/settings.svg" }
     ]
 

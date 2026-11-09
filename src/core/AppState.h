@@ -26,6 +26,23 @@ class AppState : public QObject {
     Q_PROPERTY(QString compactEventMessage READ compactEventMessage NOTIFY compactEventMessageChanged)
     Q_PROPERTY(bool isQuickCaptureActive READ isQuickCaptureActive WRITE setIsQuickCaptureActive NOTIFY quickCaptureActiveChanged)
 
+    // Step 2: System Status & Mascot Properties
+    Q_PROPERTY(int batteryPercent READ batteryPercent NOTIFY systemStatusChanged)
+    Q_PROPERTY(bool isBatteryCharging READ isBatteryCharging NOTIFY systemStatusChanged)
+    Q_PROPERTY(QString batteryTimeRemaining READ batteryTimeRemaining NOTIFY systemStatusChanged)
+    Q_PROPERTY(bool isBatteryLow READ isBatteryLow NOTIFY systemStatusChanged)
+    Q_PROPERTY(bool isWifiConnected READ isWifiConnected NOTIFY systemStatusChanged)
+    Q_PROPERTY(bool isBluetoothConnected READ isBluetoothConnected NOTIFY systemStatusChanged)
+    Q_PROPERTY(QString currentDateString READ currentDateString NOTIFY systemStatusChanged)
+    Q_PROPERTY(QString currentTimeString READ currentTimeString NOTIFY systemStatusChanged)
+    Q_PROPERTY(QString mascotMood READ mascotMood NOTIFY mascotMoodChanged)
+    Q_PROPERTY(qreal mascotPupilX READ mascotPupilX NOTIFY mascotTrackingChanged)
+    Q_PROPERTY(qreal mascotPupilY READ mascotPupilY NOTIFY mascotTrackingChanged)
+    Q_PROPERTY(QString poyaDayInfo READ poyaDayInfo NOTIFY calendarChanged)
+    Q_PROPERTY(bool isPoyaToday READ isPoyaToday NOTIFY calendarChanged)
+    Q_PROPERTY(QString holidayInfo READ holidayInfo NOTIFY calendarChanged)
+    Q_PROPERTY(bool isHolidayToday READ isHolidayToday NOTIFY calendarChanged)
+
 public:
     static AppState &instance();
 
@@ -73,6 +90,26 @@ public:
     bool isQuickCaptureActive() const { return m_isQuickCaptureActive; }
     void setIsQuickCaptureActive(bool active);
 
+    int batteryPercent() const { return m_batteryPercent; }
+    bool isBatteryCharging() const { return m_isBatteryCharging; }
+    QString batteryTimeRemaining() const { return m_batteryTimeRemaining; }
+    bool isBatteryLow() const { return m_isBatteryLow; }
+    bool isWifiConnected() const { return m_isWifiConnected; }
+    bool isBluetoothConnected() const { return m_isBluetoothConnected; }
+    QString currentDateString() const { return m_currentDateString; }
+    QString currentTimeString() const { return m_currentTimeString; }
+    QString mascotMood() const { return m_mascotMood; }
+    qreal mascotPupilX() const { return m_mascotPupilX; }
+    qreal mascotPupilY() const { return m_mascotPupilY; }
+    QString poyaDayInfo() const { return m_poyaDayInfo; }
+    bool isPoyaToday() const { return m_isPoyaToday; }
+    QString holidayInfo() const { return m_holidayInfo; }
+    bool isHolidayToday() const { return m_isHolidayToday; }
+
+    Q_INVOKABLE void setMascotMood(const QString &mood);
+    Q_INVOKABLE void updateMascotTracking(qreal eyeDx, qreal eyeDy);
+    Q_INVOKABLE void refreshSystemStatus();
+
     Q_INVOKABLE void toggleExpanded();
     Q_INVOKABLE void collapseToIdle();
     Q_INVOKABLE void collapseToCompact();
@@ -100,6 +137,10 @@ signals:
     void toastChanged();
     void compactEventMessageChanged();
     void quickCaptureActiveChanged();
+    void systemStatusChanged();
+    void mascotMoodChanged();
+    void mascotTrackingChanged();
+    void calendarChanged();
     void requestWindowResize(int width, int height, int radius);
     void quitRequested();
 
@@ -128,6 +169,26 @@ private:
     QString m_compactEventMessage;
     QTimer *m_eventTimer = nullptr;
     bool m_isQuickCaptureActive = false;
+
+    // Step 2 members
+    int m_batteryPercent = 100;
+    bool m_isBatteryCharging = false;
+    QString m_batteryTimeRemaining;
+    bool m_isBatteryLow = false;
+    bool m_isWifiConnected = true;
+    bool m_isBluetoothConnected = true;
+    QString m_currentDateString;
+    QString m_currentTimeString;
+    QString m_mascotMood = "normal";
+    qreal m_mascotPupilX = 0.0;
+    qreal m_mascotPupilY = 0.0;
+    QString m_poyaDayInfo;
+    bool m_isPoyaToday = false;
+    QString m_holidayInfo;
+    bool m_isHolidayToday = false;
+    QTimer *m_systemStatusTimer = nullptr;
+    void updateSystemStatus();
+    void calculateSriLankaCalendar();
 };
 
 } // namespace Aura

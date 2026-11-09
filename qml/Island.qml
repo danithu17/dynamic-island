@@ -368,10 +368,22 @@ Item {
             }
         }
 
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            acceptedButtons: Qt.NoButton
+            onPositionChanged: function(mouse) {
+                if (appState) {
+                    appState.updateMascotTracking((mouse.x - width / 2) / 35, (mouse.y - height / 2) / 25)
+                }
+            }
+        }
+
         Column {
             id: expandedColumn
             anchors.fill: parent
-            spacing: 8
+            anchors.margins: 10
+            spacing: 6
 
             scale: expandedView.contentScale
             transformOrigin: Item.Top
@@ -380,39 +392,23 @@ Item {
                 SpringAnimation { spring: 3.5; damping: 0.60; epsilon: 0.001 }
             }
 
-            // ── Tab bar + collapse button ──
-            Row {
+            // ── 1. Top Status Row (wifi/bt/date, eyes mascot, battery/time/pin/close) ──
+            StatusRow {
                 width: parent.width
-                height: 38
-                spacing: 8
-
-                SlidingTabBar {
-                    width: parent.width - 44
-                    activeTab: appState ? appState.currentTab : "shelf"
-                    onTabSelected: function(tabId) {
-                        if (appState) appState.setCurrentTab(tabId)
-                    }
-                }
-
-                GlassButton {
-                    iconSource: "qrc:/resources/icons/close.svg"
-                    cornerRadius: 19
-                    implicitWidth: 38
-                    implicitHeight: 38
-                    onClicked: if (appState) appState.collapseToIdle()
-                }
+                height: 26
             }
 
-            // ── Tab content area ──
+            // ── 2. Tab content area ──
             Rectangle {
                 id: contentArea
                 width: parent.width
-                height: parent.height - 46
-                radius: 20
+                height: parent.height - 76
+                radius: 18
                 color: Qt.rgba(0.04, 0.04, 0.06, 0.45)
                 border.color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
                 clip: true
 
+                HomeTab      { anchors.fill: parent; visible: !appState || appState.currentTab === "home" }
                 ShelfTab     { anchors.fill: parent; visible: appState && appState.currentTab === "shelf" }
                 MailTab      { anchors.fill: parent; visible: appState && appState.currentTab === "mail" }
                 ClipboardTab { anchors.fill: parent; visible: appState && appState.currentTab === "clipboard" }
@@ -427,6 +423,16 @@ Item {
                     anchors.right: parent.right
                     height: 1
                     color: Qt.rgba(1.0, 1.0, 1.0, 0.07)
+                }
+            }
+
+            // ── 3. Bottom Dock Bar ──
+            SlidingTabBar {
+                width: parent.width
+                height: 36
+                activeTab: appState ? appState.currentTab : "home"
+                onTabSelected: function(tabId) {
+                    if (appState) appState.setCurrentTab(tabId)
                 }
             }
         }
