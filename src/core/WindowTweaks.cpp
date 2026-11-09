@@ -80,7 +80,7 @@ void WindowTweaks::applyGlassEffect(HWND hwnd) {
             auto setWindowComposition = reinterpret_cast<pfnSetWindowCompositionAttribute>(
                 GetProcAddress(hUser, "SetWindowCompositionAttribute"));
             if (setWindowComposition) {
-                ACCENT_POLICY policy = {4 /* ACCENT_ENABLE_ACRYLICBLURBEHIND */, 2, 0x99181818, 0};
+                ACCENT_POLICY policy = {4 /* ACCENT_ENABLE_ACRYLICBLURBEHIND */, 2, static_cast<int>(0x99181818), 0};
                 WINDOWCOMPOSITIONATTRIBDATA data = {19 /* WCA_ACCENT_POLICY */, &policy, sizeof(policy)};
                 setWindowComposition(hwnd, &data);
             }

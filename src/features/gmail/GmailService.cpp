@@ -52,7 +52,7 @@ void GmailService::loadCredentials() {
         m_clientId = env.value("GMAIL_CLIENT_ID");
         m_clientSecret = env.value("GMAIL_CLIENT_SECRET");
         m_oauth->setClientIdentifier(m_clientId);
-        m_oauth->setClientSecret(m_clientSecret);
+        m_oauth->setClientIdentifierSharedKey(m_clientSecret);
         return;
     }
 
@@ -71,7 +71,7 @@ void GmailService::loadCredentials() {
         m_clientId = installed.value("client_id").toString();
         m_clientSecret = installed.value("client_secret").toString();
         m_oauth->setClientIdentifier(m_clientId);
-        m_oauth->setClientSecret(m_clientSecret);
+        m_oauth->setClientIdentifierSharedKey(m_clientSecret);
     }
 }
 
