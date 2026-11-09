@@ -73,6 +73,7 @@ int main(int argc, char *argv[]) {
 
     // 5. Register QML Types
     qmlRegisterType<Aura::IslandWindow>("Aura", 1, 0, "IslandWindow");
+    qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/qml/Theme.qml")), "Aura", 1, 0, "Theme");
 
     // 6. Setup QML Engine & Root Context
     QQmlApplicationEngine engine;
@@ -87,6 +88,14 @@ int main(int argc, char *argv[]) {
     context->setContextProperty("mediaManager", &Aura::MediaManager::instance());
     context->setContextProperty("dropManager", &Aura::DropManager::instance());
     context->setContextProperty("systemControlManager", &Aura::SystemControlManager::instance());
+
+    QQmlComponent themeComponent(&engine, QUrl(QStringLiteral("qrc:/qml/Theme.qml")));
+    QObject *themeObject = themeComponent.create(context);
+    if (themeObject) {
+        context->setContextProperty("Theme", themeObject);
+    } else {
+        qWarning() << "Failed to instantiate Theme:" << themeComponent.errorString();
+    }
 
     // 7. Load QML Interface
     const QUrl url(QStringLiteral("qrc:/qml/Main.qml"));

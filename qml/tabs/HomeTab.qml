@@ -22,7 +22,7 @@ Item {
             width: 146
             height: 82
             radius: 16
-            color: jobsMouse.containsMouse ? Theme.glassSurfaceHover : Theme.cardBackground
+            color: jobsMouse.containsMouse ? (Theme.glassSurfaceHover || "#232326") : (Theme.cardBackground || "#161618")
             border.color: jobsMouse.containsMouse ? Theme.glassBorderHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.width: 1
             scale: jobsMouse.pressed ? 0.98 : (jobsMouse.containsMouse ? 1.02 : 1.0)
@@ -91,7 +91,7 @@ Item {
             width: 146
             height: 82
             radius: 16
-            color: mediaMouse.containsMouse ? Theme.glassSurfaceHover : Theme.cardBackground
+            color: mediaMouse.containsMouse ? (Theme.glassSurfaceHover || "#232326") : (Theme.cardBackground || "#161618")
             border.color: mediaMouse.containsMouse ? Theme.glassBorderHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.width: 1
             scale: mediaMouse.pressed ? 0.98 : (mediaMouse.containsMouse ? 1.02 : 1.0)
@@ -176,7 +176,7 @@ Item {
             width: 146
             height: 82
             radius: 16
-            color: focusMouse.containsMouse ? Theme.glassSurfaceHover : Theme.cardBackground
+            color: focusMouse.containsMouse ? (Theme.glassSurfaceHover || "#232326") : (Theme.cardBackground || "#161618")
             border.color: focusMouse.containsMouse ? Theme.glassBorderHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.width: 1
             scale: focusMouse.pressed ? 0.98 : (focusMouse.containsMouse ? 1.02 : 1.0)
@@ -244,7 +244,7 @@ Item {
             width: 146
             height: 82
             radius: 16
-            color: trayMouse.containsMouse ? Theme.glassSurfaceHover : Theme.cardBackground
+            color: trayMouse.containsMouse ? (Theme.glassSurfaceHover || "#232326") : (Theme.cardBackground || "#161618")
             border.color: trayMouse.containsMouse ? Theme.glassBorderHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.width: 1
             scale: trayMouse.pressed ? 0.98 : (trayMouse.containsMouse ? 1.02 : 1.0)
@@ -315,7 +315,7 @@ Item {
             width: 146
             height: 82
             radius: 16
-            color: clipsMouse.containsMouse ? Theme.glassSurfaceHover : Theme.cardBackground
+            color: clipsMouse.containsMouse ? (Theme.glassSurfaceHover || "#232326") : (Theme.cardBackground || "#161618")
             border.color: clipsMouse.containsMouse ? Theme.glassBorderHighlight : Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.width: 1
             scale: clipsMouse.pressed ? 0.98 : (clipsMouse.containsMouse ? 1.02 : 1.0)
@@ -384,7 +384,7 @@ Item {
             width: 146
             height: 82
             radius: 16
-            color: calMouse.containsMouse ? Theme.glassSurfaceHover : Theme.cardBackground
+            color: calMouse.containsMouse ? (Theme.glassSurfaceHover || "#232326") : (Theme.cardBackground || "#161618")
             border.color: calMouse.containsMouse ? Theme.glassBorderHighlight : ((appState && appState.isPoyaToday) ? "#FFD60A" : Qt.rgba(1.0, 1.0, 1.0, 0.08))
             border.width: 1
             scale: calMouse.pressed ? 0.98 : (calMouse.containsMouse ? 1.02 : 1.0)

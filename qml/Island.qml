@@ -504,12 +504,9 @@ Item {
             }
         }
 
-        Column {
-            id: expandedColumn
+        Item {
+            id: expandedContent
             anchors.fill: parent
-            anchors.margins: 10
-            spacing: 6
-
             scale: expandedView.contentScale
             transformOrigin: Item.Top
 
@@ -517,23 +514,49 @@ Item {
                 SpringAnimation { spring: 3.5; damping: 0.60; epsilon: 0.001 }
             }
 
-            // ── 1. Top Status Row (wifi/bt/date, eyes mascot, battery/time/pin/close) ──
+            // 1. Top Status Row (Fixed at Top)
             StatusRow {
-                width: parent.width
-                height: 26
+                id: statusRow
+                anchors.top: parent.top
+                anchors.topMargin: 2
+                anchors.left: parent.left
+                anchors.leftMargin: 6
+                anchors.right: parent.right
+                anchors.rightMargin: 6
+                height: 24
             }
 
-            // ── 2. Tab content area ──
+            // 2. Bottom Dock (Fixed at Bottom)
+            SlidingTabBar {
+                id: bottomDock
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: 2
+                anchors.left: parent.left
+                anchors.leftMargin: 4
+                anchors.right: parent.right
+                anchors.rightMargin: 4
+                height: 36
+                activeTab: appState ? appState.currentTab : "home"
+                onTabSelected: function(tabId) {
+                    if (appState) appState.setCurrentTab(tabId)
+                }
+            }
+
+            // 3. Tab Content Area (Stretches perfectly between StatusRow and Dock!)
             Rectangle {
                 id: contentArea
-                width: parent.width
-                height: parent.height - 76
-                radius: 18
-                color: Qt.rgba(0.04, 0.04, 0.06, 0.45)
+                anchors.top: statusRow.bottom
+                anchors.topMargin: 6
+                anchors.bottom: bottomDock.top
+                anchors.bottomMargin: 6
+                anchors.left: parent.left
+                anchors.right: parent.right
+                radius: 16
+                color: Qt.rgba(0.04, 0.04, 0.06, 0.55)
                 border.color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
                 clip: true
 
-                HomeTab      { anchors.fill: parent; visible: !appState || appState.currentTab === "home" }
+                HomeTab      { anchors.fill: parent; anchors.margins: 4; visible: !appState || appState.currentTab === "home" }
                 ShelfTab     { anchors.fill: parent; visible: appState && appState.currentTab === "shelf" }
                 MailTab      { anchors.fill: parent; visible: appState && appState.currentTab === "mail" }
                 ClipboardTab { anchors.fill: parent; visible: appState && appState.currentTab === "clipboard" }
@@ -548,16 +571,6 @@ Item {
                     anchors.right: parent.right
                     height: 1
                     color: Qt.rgba(1.0, 1.0, 1.0, 0.07)
-                }
-            }
-
-            // ── 3. Bottom Dock Bar ──
-            SlidingTabBar {
-                width: parent.width
-                height: 36
-                activeTab: appState ? appState.currentTab : "home"
-                onTabSelected: function(tabId) {
-                    if (appState) appState.setCurrentTab(tabId)
                 }
             }
         }

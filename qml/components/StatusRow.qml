@@ -16,22 +16,22 @@ Item {
         IconImage {
             source: "qrc:/resources/icons/wifi.svg"
             size: 13
-            color: (appState && appState.isWifiConnected) ? "#FFFFFF" : Theme.textMuted
+            color: (appState && appState.isWifiConnected) ? "#FFFFFF" : ((Theme && Theme.textMuted) ? Theme.textMuted : "#71717A")
             anchors.verticalCenter: parent.verticalCenter
         }
 
         IconImage {
             source: "qrc:/resources/icons/bluetooth.svg"
             size: 13
-            color: (appState && appState.isBluetoothConnected) ? "#FFFFFF" : Theme.textMuted
+            color: (appState && appState.isBluetoothConnected) ? "#FFFFFF" : ((Theme && Theme.textMuted) ? Theme.textMuted : "#71717A")
             opacity: 0.8
             anchors.verticalCenter: parent.verticalCenter
         }
 
         Text {
-            text: appState ? appState.currentDateString : "MON 09 NOV"
-            color: Theme.textSecondary
-            font.family: Theme.fontMono
+            text: (appState && appState.currentDateString !== "") ? appState.currentDateString : "MON 09 NOV"
+            color: (Theme && Theme.textSecondary) ? Theme.textSecondary : "#A1A1AA"
+            font.family: (Theme && Theme.fontMono) ? Theme.fontMono : "Cascadia Code, monospace"
             font.pixelSize: 10
             font.weight: Font.DemiBold
             anchors.verticalCenter: parent.verticalCenter

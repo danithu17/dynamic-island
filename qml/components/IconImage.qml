@@ -5,7 +5,7 @@ import ".."
 Item {
     id: root
     property string source: ""
-    property color color: Theme.textPrimary
+    property color color: (Theme && Theme.textPrimary) ? Theme.textPrimary : "#FFFFFF"
     property int size: 18
 
     width: size

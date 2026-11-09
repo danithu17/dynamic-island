@@ -48,10 +48,10 @@ Item {
             radius: 16
 
             gradient: Gradient {
-                GradientStop { position: 0.0; color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.35) }
-                GradientStop { position: 1.0; color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.18) }
+                GradientStop { position: 0.0; color: (Theme && Theme.accent) ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.35) : "#330A84FF" }
+                GradientStop { position: 1.0; color: (Theme && Theme.accent) ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.18) : "#180A84FF" }
             }
-            border.color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.6)
+            border.color: (Theme && Theme.accent) ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.6) : "#990A84FF"
             border.width: 1
 
             Behavior on x {
@@ -104,16 +104,16 @@ Item {
                         }
 
                         Text {
-                            visible: modelData.label !== ""
+                            visible: tabItem.isActive && modelData.label !== ""
                             text: modelData.label
-                            color: tabItem.isActive ? Theme.textPrimary : Theme.textSecondary
+                            color: Theme.textPrimary
                             font.family: Theme.fontFamily
-                            font.pixelSize: 11
-                            font.weight: tabItem.isActive ? Font.DemiBold : Font.Medium
+                            font.pixelSize: 10
+                            font.weight: Font.DemiBold
                             anchors.verticalCenter: parent.verticalCenter
 
-                            Behavior on color {
-                                ColorAnimation { duration: Theme.animDurationFast }
+                            Behavior on opacity {
+                                NumberAnimation { duration: 140 }
                             }
                         }
 
@@ -136,6 +136,18 @@ Item {
                                 font.bold: true
                             }
                         }
+                    }
+
+                    // Active Tab White Dot
+                    Rectangle {
+                        visible: tabItem.isActive
+                        width: 3
+                        height: 3
+                        radius: 1.5
+                        color: "#FFFFFF"
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 2
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
 
                     MouseArea {
