@@ -214,19 +214,19 @@ Item {
                     text: "Lines: " + (scratchText.text.length > 0 ? (scratchText.text.split('\n').length) : 0)
                     color: Theme.textMuted
                     font.family: Theme.fontMono
-                    font.pixelSize: 9.5
+                    font.pixelSize: 10
                 }
                 Text {
                     text: "Words: " + (scratchText.text.trim().length > 0 ? scratchText.text.trim().split(/\s+/).length : 0)
                     color: Theme.textMuted
                     font.family: Theme.fontMono
-                    font.pixelSize: 9.5
+                    font.pixelSize: 10
                 }
                 Text {
                     text: "Chars: " + scratchText.text.length
                     color: Theme.textMuted
                     font.family: Theme.fontMono
-                    font.pixelSize: 9.5
+                    font.pixelSize: 10
                 }
             }
         }

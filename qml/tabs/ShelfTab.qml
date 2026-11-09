@@ -42,7 +42,7 @@ Item {
                         text: (shelfManager && shelfManager.model) ? shelfManager.model.rowCount() : "0"
                         color: Theme.accent
                         font.family: Theme.fontMono
-                        font.pixelSize: 9.5
+                        font.pixelSize: 10
                         font.bold: true
                     }
                 }
@@ -109,7 +109,7 @@ Item {
                     text: "Drop files or links here to save to %APPDATA%/tray"
                     color: Theme.textSecondary
                     font.family: Theme.fontFamily
-                    font.pixelSize: 10.5
+                    font.pixelSize: 11
                     anchors.verticalCenter: parent.verticalCenter
                 }
             }
@@ -172,7 +172,7 @@ Item {
                             text: model.filePath !== "" ? model.filePath : model.itemData
                             color: Theme.textMuted
                             font.family: Theme.fontFamily
-                            font.pixelSize: 9.5
+                            font.pixelSize: 10
                             elide: Text.ElideMiddle
                             width: parent.width
                         }

@@ -293,7 +293,7 @@ Item {
                     text: "%APPDATA%/tray"
                     color: Theme.textMuted
                     font.family: Theme.fontMono
-                    font.pixelSize: 8.5
+                    font.pixelSize: 9
                     elide: Text.ElideMiddle
                     width: parent.width
                 }
@@ -424,7 +424,7 @@ Item {
                     text: (appState && appState.isPoyaToday) ? "🌕 " + appState.poyaDayInfo : (appState ? appState.poyaDayInfo : "Il Full Moon")
                     color: (appState && appState.isPoyaToday) ? "#FFD60A" : Theme.textSecondary
                     font.family: Theme.fontFamily
-                    font.pixelSize: 10.5
+                    font.pixelSize: 11
                     font.bold: appState ? appState.isPoyaToday : false
                     elide: Text.ElideRight
                     width: parent.width
