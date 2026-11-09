@@ -1,4 +1,5 @@
 #include "Watchdog.h"
+#include "Logger.h"
 #include <QCoreApplication>
 #include <QProcess>
 #include <QDateTime>
@@ -19,6 +20,9 @@ bool Watchdog::isWorkerProcess(int argc, char *argv[]) {
 
 int Watchdog::runSupervisor(int argc, char *argv[]) {
     QCoreApplication app(argc, argv);
+    app.setApplicationName("AuraIsland");
+    app.setOrganizationName("Aura");
+    Aura::Logger::init();
 
     QString appPath = QCoreApplication::applicationFilePath();
     QStringList workerArgs;

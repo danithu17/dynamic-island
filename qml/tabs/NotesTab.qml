@@ -27,7 +27,6 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
-            Item { width: 1; height: 1; Layout.fillWidth: true }
 
             Row {
                 anchors.right: parent.right

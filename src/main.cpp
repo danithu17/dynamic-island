@@ -28,17 +28,17 @@ int main(int argc, char *argv[]) {
         return Aura::Watchdog::runSupervisor(argc, argv);
     }
 
-    // 2. Initialize rotated file logger in %APPDATA%/AuraIsland/logs
-    Aura::Logger::init();
-    qInfo() << "========================================";
-    qInfo() << "Starting Aura Island - Liquid Glass Hub";
-    qInfo() << "========================================";
-
     QApplication app(argc, argv);
     app.setApplicationName("AuraIsland");
     app.setApplicationDisplayName("Aura Island");
     app.setOrganizationName("Aura");
     app.setQuitOnLastWindowClosed(false);
+
+    // 2. Initialize rotated file logger in %APPDATA%/Aura/AuraIsland/logs
+    Aura::Logger::init();
+    qInfo() << "========================================";
+    qInfo() << "Starting Aura Island - Liquid Glass Hub";
+    qInfo() << "========================================";
 
     // 3. Initialize SQLite Database
     if (!Aura::DatabaseManager::instance().init()) {

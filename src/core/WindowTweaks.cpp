@@ -44,7 +44,6 @@ void WindowTweaks::applyIslandWindowStyles(HWND hwnd) {
     // Apply WS_EX_TOOLWINDOW (no taskbar, no Alt-Tab) and WS_EX_NOACTIVATE (never steals focus)
     exStyle |= WS_EX_TOOLWINDOW;
     exStyle |= WS_EX_NOACTIVATE;
-    exStyle |= WS_EX_LAYERED;
 
     SetWindowLongPtr(hwnd, GWL_EXSTYLE, exStyle);
 

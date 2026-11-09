@@ -291,8 +291,6 @@ Item {
                             onClicked: {
                                 if (settings && appState) {
                                     appState.showToast("Agent token copied to clipboard", "success")
-                                    var cb = Qt.createQmlObject('import QtQuick; Item {}', root)
-                                    // Using appState toast
                                 }
                             }
                         }
