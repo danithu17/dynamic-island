@@ -89,6 +89,12 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
 void IslandWindow::onWindowResizeRequested(int width, int height, int radius) {
     m_currentRadius = radius;
     repositionToTopCenter(width, height);
+    if (!isVisible()) {
+        show();
+    }
+    if (m_hwnd) {
+        WindowTweaks::setTopmostNoActivate(m_hwnd);
+    }
 }
 
 void IslandWindow::onFullscreenChanged(bool isFullscreen) {

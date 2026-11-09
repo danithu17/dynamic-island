@@ -27,9 +27,9 @@ void FullscreenDetector::checkState() {
     QUERY_USER_NOTIFICATION_STATE state;
     HRESULT hr = SHQueryUserNotificationState(&state);
     if (SUCCEEDED(hr)) {
-        bool fullscreen = (state == QUNS_RUNNING_D3D_FULL_SCREEN ||
-                           state == QUNS_PRESENTATION_MODE ||
-                           state == QUNS_BUSY);
+        // Only suppress during actual exclusive Direct3D fullscreen games (QUNS_RUNNING_D3D_FULL_SCREEN)
+        // Never hide during QUNS_BUSY or normal desktop windows, so Island is always visible at the top!
+        bool fullscreen = (state == QUNS_RUNNING_D3D_FULL_SCREEN);
 
         if (fullscreen != m_isFullscreen) {
             m_isFullscreen = fullscreen;

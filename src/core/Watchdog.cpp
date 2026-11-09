@@ -26,7 +26,11 @@ bool Watchdog::isWorkerProcess(int argc, char *argv[]) {
 int Watchdog::runSupervisor(int argc, char *argv[]) {
     HANDLE hMutex = CreateMutexW(NULL, FALSE, L"Local\\AuraIsland_Supervisor_Mutex");
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
-        std::cout << "[Watchdog] Aura Island is already running." << std::endl;
+        std::cout << "[Watchdog] Aura Island is already running. Signaling window to show..." << std::endl;
+        UINT msg = RegisterWindowMessageW(L"WM_AURA_ISLAND_SHOW");
+        if (msg != 0) {
+            PostMessageW(HWND_BROADCAST, msg, 0, 0);
+        }
         if (hMutex) CloseHandle(hMutex);
         return 0;
     }

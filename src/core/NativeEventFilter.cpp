@@ -85,6 +85,12 @@ bool NativeEventFilter::nativeEventFilter(const QByteArray &eventType, void *mes
         return false;
     }
 
+    static const UINT s_wmShowIsland = RegisterWindowMessageW(L"WM_AURA_ISLAND_SHOW");
+    if (s_wmShowIsland != 0 && msg->message == s_wmShowIsland) {
+        emit hotkeyTriggered();
+        return true;
+    }
+
     return false;
 }
 
