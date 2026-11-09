@@ -66,18 +66,18 @@ void IslandWindow::initializeNativeWindow() {
 }
 
 void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
-    QScreen *screen = QGuiApplication::primaryScreen();
-    if (!screen) return;
+    QScreen *targetScreen = screen();
+    if (!targetScreen) targetScreen = QGuiApplication::primaryScreen();
+    if (!targetScreen) return;
 
-    QRect screenGeo = screen->geometry();
+    QRect screenGeo = targetScreen->geometry();
     int x = screenGeo.x() + (screenGeo.width() - targetWidth) / 2;
     int y = screenGeo.y() + 8; // 8px from top edge
 
     setGeometry(x, y, targetWidth, targetHeight);
 
     if (m_hwnd) {
-        WindowTweaks::setTopmostNoActivate(m_hwnd, x, y, targetWidth, targetHeight);
-        WindowTweaks::updateWindowShape(m_hwnd, targetWidth, targetHeight, m_currentRadius);
+        WindowTweaks::setTopmostNoActivate(m_hwnd);
     }
 }
 
@@ -93,7 +93,7 @@ void IslandWindow::onFullscreenChanged(bool isFullscreen) {
     } else {
         show();
         if (m_hwnd) {
-            WindowTweaks::setTopmostNoActivate(m_hwnd, x(), y(), width(), height());
+            WindowTweaks::setTopmostNoActivate(m_hwnd);
         }
     }
 }
@@ -107,8 +107,11 @@ void IslandWindow::checkCursorProximity() {
 
     POINT pt;
     if (GetCursorPos(&pt)) {
-        QRect winRect = geometry();
-        bool inside = winRect.contains(pt.x, pt.y);
+        POINT ptClient = pt;
+        ScreenToClient(m_hwnd, &ptClient);
+        RECT rc;
+        GetClientRect(m_hwnd, &rc);
+        bool inside = PtInRect(&rc, ptClient);
 
         if (inside != m_isHovered) {
             m_isHovered = inside;

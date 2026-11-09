@@ -5,6 +5,7 @@ IslandWindow {
     id: mainWindow
     title: "Aura Island"
     visible: true
+    color: "transparent"
 
     Island {
         id: islandItem

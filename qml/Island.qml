@@ -14,7 +14,7 @@ Item {
     // Target dimensions per state
     // ─────────────────────────────────────────────────────────
     readonly property int targetWidth: {
-        if (stateName === "idle")     return root.isHovered ? 136 : 120
+        if (stateName === "idle")     return 120
         if (stateName === "compact")  return 260
         if (stateName === "expanded") return 560
         if (stateName === "drop")     return 400
@@ -22,7 +22,7 @@ Item {
     }
 
     readonly property int targetHeight: {
-        if (stateName === "idle")     return root.isHovered ? 36 : 32
+        if (stateName === "idle")     return 32
         if (stateName === "compact")  return 36
         if (stateName === "expanded") return 340
         if (stateName === "drop")     return 140
@@ -38,42 +38,10 @@ Item {
     }
 
     // ─────────────────────────────────────────────────────────
-    // Spring-physics morphing — width and height
+    // Dimensions fill parent (Window)
     // ─────────────────────────────────────────────────────────
-    width:  targetWidth
-    height: targetHeight
-
-    Behavior on width {
-        SpringAnimation {
-            spring:  2.8
-            damping: 0.52
-            mass:    0.9
-            epsilon: 0.5
-        }
-    }
-
-    Behavior on height {
-        SpringAnimation {
-            spring:  2.8
-            damping: 0.52
-            mass:    0.9
-            epsilon: 0.5
-        }
-    }
-
-    // ─────────────────────────────────────────────────────────
-    // Hover scale spring on the whole island (idle state only)
-    // ─────────────────────────────────────────────────────────
-    scale: (stateName === "idle" && root.isHovered) ? 1.045 : 1.0
-    transformOrigin: Item.Top
-
-    Behavior on scale {
-        SpringAnimation {
-            spring:  5.0
-            damping: 0.60
-            epsilon: 0.001
-        }
-    }
+    width:  parent ? parent.width : targetWidth
+    height: parent ? parent.height : targetHeight
 
     // ─────────────────────────────────────────────────────────
     // Glass Pill Background
