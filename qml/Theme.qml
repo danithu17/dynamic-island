@@ -20,8 +20,8 @@ QtObject {
     readonly property color textMuted: "#71717A"
     
     // Dynamic Accent color bound to Settings
-    readonly property color accent: settings ? settings.accentColor : "#0A84FF"
-    readonly property color accentGlow: Qt.rgba(accent.r, accent.g, accent.b, 0.30)
+    readonly property color accent: (typeof settings !== "undefined" && settings && settings.accentColor) ? settings.accentColor : "#0A84FF"
+    readonly property color accentGlow: Qt.rgba(0.04, 0.52, 1.0, 0.30)
     readonly property color danger: "#FF453A"
     readonly property color success: "#30D158"
     readonly property color warning: "#FF9F0A"

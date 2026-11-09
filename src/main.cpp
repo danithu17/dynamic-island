@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-#include <QQmlComponent>
+#include <QtQml>
 #include <QSystemTrayIcon>
 #include <QMenu>
 #include <QIcon>
