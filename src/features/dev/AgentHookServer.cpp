@@ -87,7 +87,7 @@ void AgentHookServer::handleSocketData(QTcpSocket *socket) {
     if (method == "POST" && path.startsWith("/api/hook")) {
         // Find body after double newline
         int bodyIdx = req.indexOf("\r\n\r\n");
-        QByteArray body = (bodyIdx != -1) ? rawData.mid(bodyIdx + 4) : "";
+        QByteArray body = (bodyIdx != -1) ? rawData.mid(bodyIdx + 4) : QByteArray();
 
         QJsonDocument doc = QJsonDocument::fromJson(body);
         QJsonObject obj = doc.object();

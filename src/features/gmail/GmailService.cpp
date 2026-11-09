@@ -36,7 +36,9 @@ GmailService::GmailService(QObject *parent)
 
     connect(m_oauth, &QOAuth2AuthorizationCodeFlow::granted, this, &GmailService::onAuthenticated);
     connect(m_oauth, &QOAuth2AuthorizationCodeFlow::error, this, &GmailService::onAuthFailed);
-    connect(m_oauth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, &QDesktopServices::openUrl);
+    connect(m_oauth, &QOAuth2AuthorizationCodeFlow::authorizeWithBrowser, [](const QUrl &url) {
+        QDesktopServices::openUrl(url);
+    });
 
     connect(m_pollTimer, &QTimer::timeout, this, &GmailService::fetchUnreadMessages);
 
@@ -50,7 +52,7 @@ void GmailService::loadCredentials() {
         m_clientId = env.value("GMAIL_CLIENT_ID");
         m_clientSecret = env.value("GMAIL_CLIENT_SECRET");
         m_oauth->setClientIdentifier(m_clientId);
-        m_oauth->setClientSharedSecret(m_clientSecret);
+        m_oauth->setClientSecret(m_clientSecret);
         return;
     }
 
@@ -69,7 +71,7 @@ void GmailService::loadCredentials() {
         m_clientId = installed.value("client_id").toString();
         m_clientSecret = installed.value("client_secret").toString();
         m_oauth->setClientIdentifier(m_clientId);
-        m_oauth->setClientSharedSecret(m_clientSecret);
+        m_oauth->setClientSecret(m_clientSecret);
     }
 }
 
