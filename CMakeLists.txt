@@ -80,7 +80,7 @@ set(SOURCES
     src/features/media/WinRtMediaBridge.cpp
     src/features/media/MediaManager.h
     src/features/media/MediaManager.cpp
-    resources/resources.qrc
+    resources.qrc
     resources/version.rc
 )
 
