@@ -8,5 +8,3 @@ IDR_AURA_ENGINE RCDATA AURA_ENGINE_FILE
 #else
 IDR_AURA_ENGINE RCDATA "AuraEngine.exe"
 #endif
-
-1 24 "manifest.xml"

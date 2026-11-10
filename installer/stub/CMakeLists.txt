@@ -18,6 +18,7 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set(STUB_SOURCES
     main.cpp
     stub.rc
+    manifest.xml
 )
 
 add_executable(AuraSetupStub WIN32 ${STUB_SOURCES})
