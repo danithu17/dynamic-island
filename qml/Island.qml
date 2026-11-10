@@ -36,11 +36,11 @@ Item {
         if (stateName === "live" || stateName === "compact") return 34
         if (stateName === "alert")    return 76
         if (stateName === "drop")     return 200
-        if (stateName === "onboarding") return 252
+        if (stateName === "onboarding") return 264
         if (stateName === "expanded") {
             var tab = appState ? appState.currentTab : "home"
-            if (tab === "home" || tab === "toggles") return 252
-            return 300 // Tray, Clipboard, Notes, etc.
+            if (tab === "home" || tab === "toggles") return 292
+            return 312 // Tray, Clipboard, Notes, etc.
         }
         return 34
     }
@@ -107,7 +107,13 @@ Item {
     // Content starts 80ms after shape begins growing.
     // Content fades out in 60ms on collapse.
     // ─────────────────────────────────────────────────────────
-    property bool contentReady: false
+    property bool contentReady: true
+
+    Component.onCompleted: {
+        if (stateName !== "idle") {
+            expandContentTimer.start()
+        }
+    }
 
     Timer {
         id: expandContentTimer
@@ -135,8 +141,16 @@ Item {
         id: idleView
         anchors.fill: parent
         visible: (root.stateName === "idle")
-        // Entirely empty as specified in acceptance checklist:
-        // "Idle looks like a notch: solid black, flush with the top, no glow, no border, empty."
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+                if (appState) {
+                    appState.toggleExpanded()
+                }
+            }
+        }
     }
 
     // ─────────────────────────────────────────────────────────

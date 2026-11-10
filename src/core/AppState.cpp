@@ -115,6 +115,10 @@ void AppState::closeQuickCapture() {
 void AppState::setIslandState(const QString &state) {
     if (m_islandState != state) {
         m_islandState = state;
+        if (state != "onboarding" && m_isOnboardingActive) {
+            m_isOnboardingActive = false;
+            emit onboardingActiveChanged();
+        }
         emit islandStateChanged();
 
         if (m_islandState == "idle") {
@@ -125,10 +129,10 @@ void AppState::setIslandState(const QString &state) {
         } else if (m_islandState == "alert") {
             emit requestWindowResize(360, 76, 28);
         } else if (m_islandState == "expanded") {
-            int h = (m_currentTab == "home" || m_currentTab == "toggles") ? 252 : 300;
+            int h = (m_currentTab == "home" || m_currentTab == "toggles") ? 292 : 312;
             emit requestWindowResize(480, h, 34);
         } else if (m_islandState == "onboarding") {
-            emit requestWindowResize(480, 252, 34);
+            emit requestWindowResize(480, 264, 34);
         } else if (m_islandState == "drop") {
             emit requestWindowResize(480, 200, 34);
         }
@@ -140,7 +144,7 @@ void AppState::setCurrentTab(const QString &tab) {
         m_currentTab = tab;
         emit currentTabChanged();
         if (m_islandState == "expanded") {
-            int h = (m_currentTab == "home" || m_currentTab == "toggles") ? 252 : 300;
+            int h = (m_currentTab == "home" || m_currentTab == "toggles") ? 292 : 312;
             emit requestWindowResize(480, h, 34);
         }
     }
@@ -217,10 +221,10 @@ void AppState::setGitUncommittedCount(int count) {
 }
 
 void AppState::toggleExpanded() {
-    if (m_islandState == "expanded") {
-        collapseToIdle();
-    } else {
+    if (m_islandState == "idle") {
         setIslandState("expanded");
+    } else {
+        collapseToIdle();
     }
 }
 
@@ -267,6 +271,10 @@ void AppState::setStickyAlertShowing(bool showing) {
 void AppState::collapseToIdle() {
     m_isPinned = false;
     emit isPinnedChanged();
+    if (m_isOnboardingActive) {
+        m_isOnboardingActive = false;
+        emit onboardingActiveChanged();
+    }
     setIslandState("idle");
 }
 

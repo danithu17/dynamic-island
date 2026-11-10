@@ -141,7 +141,7 @@ public:
     Q_INVOKABLE void wake(const QString &msg = "Aura Island is running", int durationMs = 2000);
 
     bool canCollapse() const {
-        return !m_isPinned && !m_isTextFieldActive && !m_isDragActive && !m_isMenuOpen && !m_isStickyAlertShowing && !m_isOnboardingActive;
+        return !m_isPinned && !m_isDragActive && !m_isMenuOpen && !m_isStickyAlertShowing;
     }
 
     Q_INVOKABLE void togglePinned();

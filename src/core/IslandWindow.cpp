@@ -16,7 +16,7 @@ IslandWindow::IslandWindow(QWindow *parent)
     , m_collapseDelayTimer(new QTimer(this)) {
     
     // Window configuration: frameless, topmost, toolwindow, non-focus-stealing
-    setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus);
+    setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool);
     setColor(QColor(Qt::transparent));
     setVisible(true);
 
@@ -227,24 +227,15 @@ void IslandWindow::checkCursorProximity() {
 
     QString state = AppState::instance().islandState();
 
+    RECT rc;
+    GetWindowRect(m_hwnd, &rc);
+
     if (state == "idle") {
-        QScreen *targetScreen = screen();
-        if (!targetScreen) targetScreen = QGuiApplication::primaryScreen();
-        if (!targetScreen) return;
-        QRect screenGeo = targetScreen->geometry();
-
-        bool isNotch = (Settings::instance().islandStyle() == "notch");
-        int centerX = screenGeo.x() + screenGeo.width() / 2;
-        int idleLeft = centerX - 148 / 2;
-        int idleRight = centerX + 148 / 2;
-        int idleTop = screenGeo.y() + (isNotch ? 0 : 10);
-        int idleBottom = idleTop + 34;
-
-        // Spec Section 9: 360x140 catch zone at top center with left button down
+        int centerX = (rc.left + rc.right) / 2;
         int catchLeft = centerX - 180;
         int catchRight = centerX + 180;
-        int catchTop = screenGeo.y();
-        int catchBottom = screenGeo.y() + 140;
+        int catchTop = rc.top;
+        int catchBottom = rc.top + 140;
         bool inCatchZone = (pt.x >= catchLeft && pt.x <= catchRight && pt.y >= catchTop && pt.y <= catchBottom);
 
         if (isMouseButtonDown && inCatchZone) {
@@ -255,7 +246,7 @@ void IslandWindow::checkCursorProximity() {
             return;
         }
 
-        bool overIdle = (pt.x >= idleLeft && pt.x <= idleRight && pt.y >= idleTop && pt.y <= idleBottom);
+        bool overIdle = PtInRect(&rc, pt);
 
         if (overIdle) {
             if (!m_isHovered) {
@@ -274,8 +265,6 @@ void IslandWindow::checkCursorProximity() {
         }
     } else {
         // Expanded or other active states
-        RECT rc;
-        GetWindowRect(m_hwnd, &rc);
         // Inflate by 24px as specified in spec Section 4
         RECT rcInflated = { rc.left - 24, rc.top - 24, rc.right + 24, rc.bottom + 24 };
         bool insideInflated = PtInRect(&rcInflated, pt);
