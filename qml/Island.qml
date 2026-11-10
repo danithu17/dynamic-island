@@ -376,6 +376,7 @@ Item {
                 clip: true
 
                 HomeTab      { anchors.fill: parent; visible: !appState || appState.currentTab === "home" }
+                MoreTab      { anchors.fill: parent; visible: appState && appState.currentTab === "more" }
                 ShelfTab     { anchors.fill: parent; visible: appState && appState.currentTab === "shelf" }
                 MailTab      { anchors.fill: parent; visible: appState && appState.currentTab === "mail" }
                 ClipboardTab { anchors.fill: parent; visible: appState && appState.currentTab === "clipboard" }

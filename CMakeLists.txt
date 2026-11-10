@@ -50,6 +50,8 @@ set(SOURCES
     src/core/Watchdog.cpp
     src/core/AppState.h
     src/core/AppState.cpp
+    src/core/AlertManager.h
+    src/core/AlertManager.cpp
     src/core/IslandWindow.h
     src/core/IslandWindow.cpp
     src/features/shelf/ShelfModel.h

@@ -15,6 +15,7 @@
 #include "core/IslandWindow.h"
 #include "core/NativeEventFilter.h"
 #include "core/FullscreenDetector.h"
+#include "core/AlertManager.h"
 
 #include "features/shelf/ShelfManager.h"
 #include "features/clipboard/ClipboardManager.h"
@@ -80,6 +81,7 @@ int main(int argc, char *argv[]) {
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();
     context->setContextProperty("appState", &Aura::AppState::instance());
+    context->setContextProperty("alertManager", &Aura::AlertManager::instance());
     context->setContextProperty("settings", &Aura::Settings::instance());
     context->setContextProperty("shelfManager", &Aura::ShelfManager::instance());
     context->setContextProperty("clipboardManager", &Aura::ClipboardManager::instance());

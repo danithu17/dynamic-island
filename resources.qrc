@@ -47,6 +47,7 @@
         <file>qml/qmldir</file>
         <file>qml/components/GlassPill.qml</file>
         <file>qml/components/ShellBackground.qml</file>
+        <file>qml/components/AlertView.qml</file>
         <file>qml/components/GlassCard.qml</file>
         <file>qml/components/GlassButton.qml</file>
         <file>qml/components/GlassInput.qml</file>
@@ -59,6 +60,7 @@
         <file>qml/components/MascotEyes.qml</file>
         <file>qml/components/StatusRow.qml</file>
         <file>qml/tabs/HomeTab.qml</file>
+        <file>qml/tabs/MoreTab.qml</file>
         <file>qml/tabs/ShelfTab.qml</file>
         <file>qml/tabs/MailTab.qml</file>
         <file>qml/tabs/ClipboardTab.qml</file>

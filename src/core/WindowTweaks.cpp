@@ -103,7 +103,7 @@ void WindowTweaks::setClickThrough(HWND hwnd, bool clickThrough) {
     }
 }
 
-void WindowTweaks::updateWindowShape(HWND hwnd, int width, int height, int cornerRadius) {
+void WindowTweaks::updateWindowShape(HWND hwnd, int width, int height, int cornerRadius, bool /*isNotch*/) {
     Q_UNUSED(hwnd);
     Q_UNUSED(width);
     Q_UNUSED(height);

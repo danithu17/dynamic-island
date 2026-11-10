@@ -22,6 +22,9 @@ ShelfManager &ShelfManager::instance() {
 
 ShelfManager::ShelfManager(QObject *parent)
     : QObject(parent) {
+    connect(&m_model, &QAbstractItemModel::rowsInserted, this, &ShelfManager::itemCountChanged);
+    connect(&m_model, &QAbstractItemModel::rowsRemoved, this, &ShelfManager::itemCountChanged);
+    connect(&m_model, &QAbstractItemModel::modelReset, this, &ShelfManager::itemCountChanged);
     loadFromDatabase();
 }
 
