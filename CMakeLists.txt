@@ -34,6 +34,10 @@ endif()
 
 set(SOURCES
     src/main.cpp
+    src/core/Paths.h
+    src/core/Paths.cpp
+    src/core/SingleInstance.h
+    src/core/SingleInstance.cpp
     src/core/Logger.h
     src/core/Logger.cpp
     src/core/DatabaseManager.h
@@ -122,6 +126,7 @@ target_link_libraries(AuraIsland PRIVATE
     windowsapp
     powrprof
     dxva2
+    dbghelp
 )
 
 # Set target properties

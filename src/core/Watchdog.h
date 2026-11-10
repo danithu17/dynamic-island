@@ -7,6 +7,7 @@ namespace Aura {
 class Watchdog {
 public:
     static bool isWorkerProcess(int argc, char *argv[]);
+    static bool shouldBypassWatchdog(int argc, char *argv[]);
     static int runSupervisor(int argc, char *argv[]);
 };
 

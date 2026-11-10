@@ -1,5 +1,6 @@
 #include "Watchdog.h"
 #include "Logger.h"
+#include "SingleInstance.h"
 #include <QCoreApplication>
 #include <QProcess>
 #include <QDateTime>
@@ -23,34 +24,43 @@ bool Watchdog::isWorkerProcess(int argc, char *argv[]) {
     return false;
 }
 
-int Watchdog::runSupervisor(int argc, char *argv[]) {
-    HANDLE hMutex = CreateMutexW(NULL, FALSE, L"Local\\AuraIsland_Supervisor_Mutex");
-    if (GetLastError() == ERROR_ALREADY_EXISTS) {
-        std::cout << "[Watchdog] Aura Island is already running. Signaling window to show..." << std::endl;
-        UINT msg = RegisterWindowMessageW(L"WM_AURA_ISLAND_SHOW");
-        if (msg != 0) {
-            PostMessageW(HWND_BROADCAST, msg, 0, 0);
+bool Watchdog::shouldBypassWatchdog(int argc, char *argv[]) {
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
+        if (arg == "--selftest" || arg == "--uninstall-cleanup" || arg == "/silent" || arg == "--help") {
+            return true;
         }
-        if (hMutex) CloseHandle(hMutex);
+    }
+    return false;
+}
+
+int Watchdog::runSupervisor(int argc, char *argv[]) {
+    QStringList args;
+    for (int i = 1; i < argc; ++i) {
+        args << QString::fromLocal8Bit(argv[i]);
+    }
+
+    // 1. Single instance check before starting supervisor loop
+    if (!SingleInstance::instance().checkAndAcquire(args)) {
+        // Notified existing instance and safe to exit
         return 0;
     }
+    // Release mutex so the worker child process can hold the official single-instance mutex
+    SingleInstance::instance().release();
 
     QCoreApplication app(argc, argv);
     app.setApplicationName("AuraIsland");
     app.setOrganizationName("Aura");
 
     QString appPath = QCoreApplication::applicationFilePath();
-    QStringList workerArgs;
-    for (int i = 1; i < argc; ++i) {
-        workerArgs << QString::fromLocal8Bit(argv[i]);
-    }
+    QStringList workerArgs = args;
     workerArgs << "--worker";
 
     QQueue<qint64> restartTimestamps;
     constexpr int MAX_RESTARTS_PER_MINUTE = 3;
     constexpr qint64 ONE_MINUTE_MS = 60 * 1000;
 
-    std::cout << "[Watchdog] Aura Island supervisor started. Monitoring worker..." << std::endl;
+    Logger::log(QtInfoMsg, "[Watchdog] Aura Island supervisor started. Monitoring worker process...");
 
     while (true) {
         QProcess worker;
@@ -62,6 +72,7 @@ int Watchdog::runSupervisor(int argc, char *argv[]) {
             return 1;
         }
 
+        // Section A.8: Supervisor must never start a second window while the first is alive
         worker.waitForFinished(-1);
 
         int exitCode = worker.exitCode();
@@ -69,7 +80,7 @@ int Watchdog::runSupervisor(int argc, char *argv[]) {
 
         // Normal exit requested by user
         if (exitStatus == QProcess::NormalExit && exitCode == 0) {
-            std::cout << "[Watchdog] Worker exited cleanly." << std::endl;
+            Logger::log(QtInfoMsg, "[Watchdog] Worker process exited cleanly.");
             return 0;
         }
 
@@ -85,12 +96,14 @@ int Watchdog::runSupervisor(int argc, char *argv[]) {
         if (restartTimestamps.size() > MAX_RESTARTS_PER_MINUTE) {
             std::cerr << "[Watchdog] Too many crashes (" << restartTimestamps.size()
                       << " in 1 minute). Halting restarts to protect system." << std::endl;
+            Logger::log(QtCriticalMsg, QString("[Watchdog] Max restart limit reached (%1/min). Halting.").arg(MAX_RESTARTS_PER_MINUTE));
             return exitCode != 0 ? exitCode : 1;
         }
 
-        std::cout << "[Watchdog] Worker crashed with exit code " << exitCode
-                  << ". Restarting in 500ms... (" << restartTimestamps.size()
-                  << "/" << MAX_RESTARTS_PER_MINUTE << " this minute)" << std::endl;
+        Logger::log(QtWarningMsg, QString("[Watchdog] Worker crashed with exit code %1. Restarting in 500ms... (%2/%3 this minute)")
+                                      .arg(exitCode)
+                                      .arg(restartTimestamps.size())
+                                      .arg(MAX_RESTARTS_PER_MINUTE));
         QThread::msleep(500);
     }
 }

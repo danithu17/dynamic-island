@@ -1,6 +1,10 @@
 #define MyAppName "Aura Island"
-#ifndef MyAppVersion
-  #define MyAppVersion "1.0.0"
+#ifndef AppVersion
+  #ifdef MyAppVersion
+    #define AppVersion MyAppVersion
+  #else
+    #define AppVersion "1.0.0"
+  #endif
 #endif
 #define MyAppPublisher "Aura"
 #define MyAppExeName "AuraIsland.exe"
@@ -9,13 +13,13 @@
 [Setup]
 AppId={{C7B38F64-280E-4C2E-8E5A-7FE156A2B3C9}
 AppName={#MyAppName}
-AppVersion={#MyAppVersion}
+AppVersion={#AppVersion}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={autopf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-OutputDir=..\dist-installer
-OutputBaseFilename=AuraIsland-Setup-{#MyAppVersion}
+OutputDir=..\dist-engine
+OutputBaseFilename=AuraEngine
 SetupIconFile=..\resources\icons\app-icon.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
@@ -46,9 +50,6 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Registry]
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "AuraIsland"; ValueData: """{app}\{#MyAppExeName}"""; Tasks: autostart; Flags: uninsdeletevalue
 
-[Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
-
 [Code]
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 var
@@ -56,7 +57,8 @@ var
 begin
   if CurUninstallStep = usUninstall then
   begin
-    DataDir := ExpandConstant('{userappdata}\Aura\AuraIsland');
+    // Check %APPDATA%\AuraIsland
+    DataDir := ExpandConstant('{userappdata}\AuraIsland');
     if DirExists(DataDir) then
     begin
       // Ask user whether to also delete notes, settings, and database (Default = NO / Keep)

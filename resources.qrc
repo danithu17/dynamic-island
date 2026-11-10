@@ -58,6 +58,7 @@
         <file>qml/components/EqualizerBars.qml</file>
         <file>qml/components/DropZone.qml</file>
         <file>qml/components/MascotEyes.qml</file>
+        <file>qml/components/OnboardingView.qml</file>
         <file>qml/components/StatusRow.qml</file>
         <file>qml/tabs/HomeTab.qml</file>
         <file>qml/tabs/TogglesTab.qml</file>

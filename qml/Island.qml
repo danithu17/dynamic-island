@@ -26,6 +26,7 @@ Item {
         if (stateName === "live" || stateName === "compact") return (appState && appState.isMusicMorphActive) ? 280 : 260
         if (stateName === "alert")    return 360
         if (stateName === "drop")     return 480
+        if (stateName === "onboarding") return 480
         if (stateName === "expanded") return 480
         return 148
     }
@@ -35,6 +36,7 @@ Item {
         if (stateName === "live" || stateName === "compact") return 34
         if (stateName === "alert")    return 76
         if (stateName === "drop")     return 200
+        if (stateName === "onboarding") return 252
         if (stateName === "expanded") {
             var tab = appState ? appState.currentTab : "home"
             if (tab === "home" || tab === "toggles") return 252
@@ -418,6 +420,28 @@ Item {
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 8
             anchors.horizontalCenter: parent.horizontalCenter
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // 3.5. ONBOARDING STATE (480x252, Radius 34)
+    // ─────────────────────────────────────────────────────────
+    Item {
+        id: onboardingContainer
+        anchors.fill: parent
+        visible: (root.stateName === "onboarding")
+        opacity: (visible && root.contentReady) ? 1.0 : 0.0
+        scale: (visible && root.contentReady) ? 1.0 : 0.92
+
+        Behavior on opacity {
+            NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
+        }
+        Behavior on scale {
+            SpringAnimation { spring: 4.5; damping: 0.65; mass: 1.0; epsilon: 0.001 }
+        }
+
+        OnboardingView {
+            anchors.fill: parent
         }
     }
 

@@ -31,6 +31,7 @@ class AppState : public QObject {
     Q_PROPERTY(bool isDragActive READ isDragActive WRITE setDragActive NOTIFY dragActiveChanged)
     Q_PROPERTY(bool isMenuOpen READ isMenuOpen WRITE setMenuOpen NOTIFY menuOpenChanged)
     Q_PROPERTY(bool isStickyAlertShowing READ isStickyAlertShowing WRITE setStickyAlertShowing NOTIFY stickyAlertShowingChanged)
+    Q_PROPERTY(bool isOnboardingActive READ isOnboardingActive WRITE setIsOnboardingActive NOTIFY onboardingActiveChanged)
 
     // Step 2: System Status & Mascot Properties
     Q_PROPERTY(int batteryPercent READ batteryPercent NOTIFY systemStatusChanged)
@@ -133,8 +134,14 @@ public:
     bool isStickyAlertShowing() const { return m_isStickyAlertShowing; }
     Q_INVOKABLE void setStickyAlertShowing(bool showing);
 
+    bool isOnboardingActive() const { return m_isOnboardingActive; }
+    Q_INVOKABLE void setIsOnboardingActive(bool active);
+    Q_INVOKABLE void startOnboarding();
+    Q_INVOKABLE void completeOnboarding();
+    Q_INVOKABLE void wake(const QString &msg = "Aura Island is running", int durationMs = 2000);
+
     bool canCollapse() const {
-        return !m_isPinned && !m_isTextFieldActive && !m_isDragActive && !m_isMenuOpen && !m_isStickyAlertShowing;
+        return !m_isPinned && !m_isTextFieldActive && !m_isDragActive && !m_isMenuOpen && !m_isStickyAlertShowing && !m_isOnboardingActive;
     }
 
     Q_INVOKABLE void togglePinned();
@@ -176,6 +183,7 @@ signals:
     void dragActiveChanged();
     void menuOpenChanged();
     void stickyAlertShowingChanged();
+    void onboardingActiveChanged();
     void systemStatusChanged();
     void mascotMoodChanged();
     void mascotTrackingChanged();
@@ -214,6 +222,7 @@ private:
     bool m_isDragActive = false;
     bool m_isMenuOpen = false;
     bool m_isStickyAlertShowing = false;
+    bool m_isOnboardingActive = false;
 
     // Step 2 members
     int m_batteryPercent = 100;

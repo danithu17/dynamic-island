@@ -30,6 +30,15 @@ IslandWindow::IslandWindow(QWindow *parent)
     connect(&AppState::instance(), &AppState::requestWindowResize,
             this, &IslandWindow::onWindowResizeRequested);
 
+    // Connect to AppState onboarding focus requests
+    connect(&AppState::instance(), &AppState::onboardingActiveChanged, this, [this]() {
+        if (AppState::instance().isOnboardingActive()) {
+            requestWindowFocus();
+        } else {
+            releaseWindowFocus();
+        }
+    });
+
     // Connect to Settings islandStyle changes
     connect(&Settings::instance(), &Settings::islandStyleChanged, this, [this]() {
         repositionToTopCenter(m_targetWidth, m_targetHeight);
@@ -129,8 +138,9 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
     if (!targetScreen) return;
 
     QRect screenGeo = targetScreen->geometry();
-    int winW = (targetWidth > 0) ? targetWidth : 148;
-    int winH = (targetHeight > 0) ? targetHeight : 34;
+    // Placement safety: never create window with zero or tiny size
+    int winW = (targetWidth >= 148) ? targetWidth : 148;
+    int winH = (targetHeight >= 34) ? targetHeight : 34;
 
     bool isNotch = (Settings::instance().islandStyle() == "notch");
     int flareW = isNotch ? 10 : 0;
@@ -138,6 +148,12 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
 
     int x = screenGeo.x() + (screenGeo.width() - winW) / 2 - flareW;
     int y = screenGeo.y() + (isNotch ? 0 : 10);
+
+    // Placement safety: if computed coordinates are off-screen or monitor changed, reset to top center
+    if (x < screenGeo.left() || x + totalW > screenGeo.right() + 10 || y < screenGeo.top() || y > screenGeo.bottom()) {
+        x = screenGeo.x() + (screenGeo.width() - winW) / 2 - flareW;
+        y = screenGeo.y() + (isNotch ? 0 : 10);
+    }
 
     setGeometry(x, y, totalW, winH);
 

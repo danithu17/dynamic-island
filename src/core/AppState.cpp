@@ -82,6 +82,31 @@ void AppState::openQuickCapture() {
     setIsQuickCaptureActive(true);
 }
 
+void AppState::wake(const QString &msg, int durationMs) {
+    triggerEventCompact(msg.isEmpty() ? "Aura Island is running" : msg, durationMs);
+}
+
+void AppState::setIsOnboardingActive(bool active) {
+    if (m_isOnboardingActive != active) {
+        m_isOnboardingActive = active;
+        emit onboardingActiveChanged();
+        if (active) {
+            setIslandState("onboarding");
+        } else if (m_islandState == "onboarding") {
+            collapseToIdle();
+        }
+    }
+}
+
+void AppState::startOnboarding() {
+    setIsOnboardingActive(true);
+}
+
+void AppState::completeOnboarding() {
+    setIsOnboardingActive(false);
+    collapseToIdle();
+}
+
 void AppState::closeQuickCapture() {
     setIsQuickCaptureActive(false);
     collapseToIdle();
@@ -102,6 +127,8 @@ void AppState::setIslandState(const QString &state) {
         } else if (m_islandState == "expanded") {
             int h = (m_currentTab == "home" || m_currentTab == "toggles") ? 252 : 300;
             emit requestWindowResize(480, h, 34);
+        } else if (m_islandState == "onboarding") {
+            emit requestWindowResize(480, 252, 34);
         } else if (m_islandState == "drop") {
             emit requestWindowResize(480, 200, 34);
         }

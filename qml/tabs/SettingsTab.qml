@@ -41,6 +41,50 @@ Item {
                 font.bold: true
             }
 
+            // Onboarding & Setup Card
+            GlassCard {
+                width: parent.width
+                implicitHeight: 52
+
+                Row {
+                    anchors.fill: parent
+                    anchors.margins: 10
+                    spacing: 10
+
+                    Column {
+                        width: parent.width - 140
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+
+                        Text {
+                            text: "Setup & Onboarding"
+                            color: Theme.textPrimary
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
+                            font.bold: true
+                        }
+                        Text {
+                            text: (settings && settings.displayName !== "") ? ("Profile: " + settings.displayName) : "Run setup wizard"
+                            color: Theme.textSecondary
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 10
+                        }
+                    }
+
+                    GlassButton {
+                        text: "Run setup again"
+                        isAccent: true
+                        cornerRadius: 8
+                        implicitHeight: 28
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        onClicked: {
+                            if (appState) appState.startOnboarding()
+                        }
+                    }
+                }
+            }
+
             // ─────────────────────────────────────────────────
             // CARD 1: Idle Island Widget (Never Blank!)
             // ─────────────────────────────────────────────────

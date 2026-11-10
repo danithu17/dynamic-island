@@ -65,7 +65,7 @@ jobs:
         run: |
           cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
+      - name: Build App Release
         run: |
           cmake --build build --config Release --verbose 2>&1 | Tee-Object -FilePath build.log
           if ($LASTEXITCODE -ne 0) {
@@ -86,18 +86,79 @@ jobs:
           New-Item -ItemType Directory -Force -Path dist\AuraIsland
           Copy-Item build\AuraIsland.exe dist\AuraIsland\
 
-          # Run windeployqt with QML scan
+          # Run windeployqt with QML scan and compiler runtime
           windeployqt.exe --qmldir qml dist\AuraIsland\AuraIsland.exe --compiler-runtime --no-translations --verbose 1
 
           Write-Host "Contents of dist\AuraIsland:"
           Get-ChildItem -Path dist\AuraIsland | Select-Object Name, Length
 
-      - name: Build Setup.exe with Inno Setup
+      - name: Verify Dependencies
         shell: powershell
         run: |
-          & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DMyAppVersion="$env:APP_VERSION" installer\AuraIsland.iss
-          Write-Host "Contents of dist-installer:"
+          .\verify_dependencies.ps1 -AppDir dist\AuraIsland
+
+      - name: Run Offscreen Selftest
+        shell: powershell
+        run: |
+          Write-Host "Running AuraIsland.exe --selftest..."
+          & "dist\AuraIsland\AuraIsland.exe" --selftest
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::Selftest returned non-zero exit code: $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
+          Write-Host "Selftest passed successfully."
+
+      - name: Build AuraEngine with Inno Setup 6
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path dist-engine
+          & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DAppVersion="$env:APP_VERSION" installer\AuraEngine.iss
+          Write-Host "Contents of dist-engine:"
+          Get-ChildItem -Path dist-engine | Select-Object Name, Length
+
+      - name: Build AuraSetupStub with Embedded AuraEngine
+        shell: powershell
+        run: |
+          $enginePath = (Resolve-Path "dist-engine\AuraEngine.exe").Path
+          Write-Host "Embedding engine from: $enginePath"
+          cmake -B build-stub -S installer/stub -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DAPP_VERSION="$env:APP_VERSION" -DAURA_ENGINE_PATH="$enginePath"
+          cmake --build build-stub --config Release
+          New-Item -ItemType Directory -Force -Path dist-installer
+          Copy-Item "build-stub\AuraIsland-Setup-$env:APP_VERSION.exe" dist-installer\
+          Write-Host "Setup executable created:"
           Get-ChildItem -Path dist-installer | Select-Object Name, Length
+
+      - name: Smoke Test on Runner
+        shell: powershell
+        run: |
+          Write-Host "Executing smoke test: Silent install to C:\AuraTest..."
+          Start-Process -FilePath "dist-engine\AuraEngine.exe" -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /DIR=""C:\AuraTest""" -Wait
+
+          if (-not (Test-Path "C:\AuraTest\AuraIsland.exe")) {
+            Write-Host "::error::Installed executable C:\AuraTest\AuraIsland.exe does not exist!"
+            exit 1
+          }
+          Write-Host "Installed AuraIsland.exe exists. Running selftest in installed directory..."
+          & "C:\AuraTest\AuraIsland.exe" --selftest
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "::error::Installed selftest failed with code $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
+
+          Write-Host "Testing silent uninstaller..."
+          $uninstaller = Get-ChildItem -Path "C:\AuraTest" -Filter "unins*.exe" | Select-Object -First 1
+          if (-not $uninstaller) {
+            Write-Host "::error::Uninstaller not found in C:\AuraTest!"
+            exit 1
+          }
+          Start-Process -FilePath $uninstaller.FullName -ArgumentList "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" -Wait
+          Start-Sleep -Seconds 2
+
+          if (Test-Path "C:\AuraTest\AuraIsland.exe") {
+            Write-Host "::error::Installed folder C:\AuraTest\AuraIsland.exe was not cleanly removed by uninstaller!"
+            exit 1
+          }
+          Write-Host "Smoke test completed successfully!"
 
       - name: Create Portable Zip Package
         shell: powershell

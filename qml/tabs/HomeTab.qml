@@ -187,28 +187,39 @@ Item {
                     }
                 }
 
-                // Media Empty State: music-note icon and "Nothing playing"
+                // Media Empty State: Personalized Greeting
                 Item {
                     anchors.fill: parent
                     visible: !mediaCard.hasMedia
 
                     Column {
                         anchors.centerIn: parent
-                        spacing: 8
+                        spacing: 6
+                        width: parent.width - 24
 
                         IconImage {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            source: "qrc:/resources/icons/media.svg"
-                            size: 24
-                            color: Theme.textTertiary
+                            source: "qrc:/resources/icons/sparkles.svg"
+                            size: 20
+                            color: Theme.accent
                         }
 
                         Text {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            text: "Nothing playing"
-                            color: Theme.textSecondary
+                            text: (settings && settings.greeting) ? settings.greeting : "Welcome to Aura Island"
+                            color: Theme.textPrimary
                             font.family: Theme.fontFamily
-                            font.pixelSize: Theme.fontBodySize
+                            font.pixelSize: 14
+                            font.weight: Theme.fontTitleWeight
+                            elide: Text.ElideRight
+                        }
+
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "No media playing"
+                            color: Theme.textTertiary
+                            font.family: Theme.fontFamily
+                            font.pixelSize: Theme.fontCaptionSize
                             font.weight: Theme.fontBodyWeight
                         }
                     }

@@ -1,4 +1,5 @@
 #include "DatabaseManager.h"
+#include "Paths.h"
 #include <QStandardPaths>
 #include <QDir>
 #include <QDebug>
@@ -22,13 +23,7 @@ bool DatabaseManager::init() {
     QMutexLocker locker(&m_mutex);
     if (m_initialized) return true;
 
-    QString appData = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    QDir dir(appData);
-    if (!dir.exists()) {
-        dir.mkpath(".");
-    }
-
-    QString dbPath = dir.filePath("aura_island.db");
+    QString dbPath = Paths::databasePath();
     m_db = QSqlDatabase::addDatabase("QSQLITE", "aura_island_connection");
     m_db.setDatabaseName(dbPath);
 
