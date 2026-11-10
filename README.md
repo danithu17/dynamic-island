@@ -158,6 +158,29 @@ curl -X POST http://127.0.0.1:19827/api/hook \
 
 ---
 
+## 📦 Installation & Setup
+
+### How to Install
+1. Download `AuraIsland-Setup-<version>.exe` from the latest GitHub Release or Workflow Artifacts.
+2. Run the installer:
+   - Choose installation scope (per-user or all users into `C:\Program Files\Aura Island`).
+   - Optionally check "Start Aura Island when Windows starts" to enable auto-start on boot.
+   - Click **Finish** to automatically launch Aura Island.
+3. **Windows SmartScreen Note**: Because the installer is freshly compiled and not code-signed with an expensive commercial EV certificate, Windows SmartScreen will display an alert:
+   - Click **"More info"**
+   - Click **"Run anyway"**
+   *(Code signing with a trusted certificate can be integrated into your CI/CD pipeline if desired).*
+
+### How to Uninstall
+1. Open Windows **Settings** > **Apps** > **Installed apps** (or `appwiz.cpl`).
+2. Search for **Aura Island** and click **Uninstall**.
+3. The uninstaller will ask:
+   > *"Do you also want to delete your personal notes, settings, and clipboard database?"*
+   - Select **No** (default) to keep your notes and database safe for future reinstalls.
+   - Select **Yes** if you wish to perform a complete wipe of all local data in `%APPDATA%\Aura\AuraIsland`.
+
+---
+
 ## 🛠️ Local Build (Optional)
 
 If you ever wish to build locally on a Windows machine:

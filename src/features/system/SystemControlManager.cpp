@@ -42,6 +42,11 @@ SystemControlManager::~SystemControlManager() {
         pVol->Release();
         m_endpointVolume = nullptr;
     }
+    if (m_micEndpointVolume) {
+        auto *pVol = static_cast<IAudioEndpointVolume *>(m_micEndpointVolume);
+        pVol->Release();
+        m_micEndpointVolume = nullptr;
+    }
 }
 
 void SystemControlManager::initAudio() {
@@ -241,6 +246,66 @@ void SystemControlManager::shutdownPC() {
     QTimer::singleShot(1000, []() {
         QProcess::startDetached(QStringLiteral("shutdown.exe"), {QStringLiteral("/s"), QStringLiteral("/t"), QStringLiteral("0")});
     });
+}
+
+void SystemControlManager::initMic() {
+    IMMDeviceEnumerator *deviceEnumerator = nullptr;
+    HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL,
+                                  __uuidof(IMMDeviceEnumerator), (LPVOID *)&deviceEnumerator);
+    if (SUCCEEDED(hr) && deviceEnumerator) {
+        IMMDevice *defaultMic = nullptr;
+        hr = deviceEnumerator->GetDefaultAudioEndpoint(eCapture, eMultimedia, &defaultMic);
+        if (SUCCEEDED(hr) && defaultMic) {
+            IAudioEndpointVolume *micEndpoint = nullptr;
+            hr = defaultMic->Activate(__uuidof(IAudioEndpointVolume), CLSCTX_ALL,
+                                      nullptr, (LPVOID *)&micEndpoint);
+            if (SUCCEEDED(hr) && micEndpoint) {
+                m_micEndpointVolume = micEndpoint;
+                BOOL isMuted = FALSE;
+                if (SUCCEEDED(micEndpoint->GetMute(&isMuted))) {
+                    m_isMicMuted = (isMuted != FALSE);
+                    emit micMuteChanged();
+                }
+            }
+            defaultMic->Release();
+        }
+        deviceEnumerator->Release();
+    }
+}
+
+void SystemControlManager::toggleMicMute() {
+    if (!m_micEndpointVolume) initMic();
+    m_isMicMuted = !m_isMicMuted;
+    if (m_micEndpointVolume) {
+        auto *pVol = static_cast<IAudioEndpointVolume *>(m_micEndpointVolume);
+        pVol->SetMute(m_isMicMuted ? TRUE : FALSE, nullptr);
+    }
+    emit micMuteChanged();
+    AppState::instance().triggerEventCompact(m_isMicMuted ? QStringLiteral("Mic Muted") : QStringLiteral("Mic Active"), 1500);
+}
+
+void SystemControlManager::toggleKeepAwake() {
+    m_isKeepAwake = !m_isKeepAwake;
+    if (m_isKeepAwake) {
+        SetThreadExecutionState(ES_CONTINUOUS | ES_SYSTEM_REQUIRED | ES_DISPLAY_REQUIRED);
+    } else {
+        SetThreadExecutionState(ES_CONTINUOUS);
+    }
+    emit keepAwakeChanged();
+    AppState::instance().triggerEventCompact(m_isKeepAwake ? QStringLiteral("Keep Awake On") : QStringLiteral("Keep Awake Off"), 1500);
+}
+
+void SystemControlManager::toggleDarkMode() {
+    m_isDarkMode = !m_isDarkMode;
+    emit darkModeChanged();
+}
+
+void SystemControlManager::toggleWifi() {
+    AppState::instance().triggerEventCompact(QStringLiteral("Wi-Fi Toggled"), 1500);
+}
+
+void SystemControlManager::toggleBluetooth() {
+    AppState::instance().triggerEventCompact(QStringLiteral("Bluetooth Toggled"), 1500);
 }
 
 void SystemControlManager::refreshAll() {

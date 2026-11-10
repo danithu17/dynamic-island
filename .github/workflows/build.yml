@@ -18,6 +18,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Determine Version
+        id: get_version
+        shell: powershell
+        run: |
+          $version = "1.0.0"
+          if ($env:GITHUB_REF -like "refs/tags/v*") {
+            $version = $env:GITHUB_REF.Substring(11)
+          } elseif (Test-Path "VERSION") {
+            $version = (Get-Content "VERSION").Trim()
+          }
+          Write-Host "App Version: $version"
+          echo "APP_VERSION=$version" >> $env:GITHUB_ENV
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -33,8 +46,10 @@ jobs:
         with:
           arch: x64
 
-      - name: Install Ninja
-        run: choco install ninja
+      - name: Install Ninja & Inno Setup
+        run: |
+          choco install ninja -y
+          choco install innosetup -y
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -54,12 +69,19 @@ jobs:
         run: |
           cmake --build build --config Release --verbose 2>&1 | Tee-Object -FilePath build.log
           if ($LASTEXITCODE -ne 0) {
-            Write-Host "::error::Build failed! Showing error log tail:"
-            Get-Content build.log -Tail 100
+            Get-Content build.log | Where-Object { $_ -match "error C" -or $_ -match "FAILED:" -or $_ -match "fatal error" } | ForEach-Object { Write-Host "::error::$_" }
             exit 1
           }
 
+      - name: Upload Build Log on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+
       - name: Deploy Qt Runtime & Dependencies (windeployqt)
+        shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path dist\AuraIsland
           Copy-Item build\AuraIsland.exe dist\AuraIsland\
@@ -67,27 +89,43 @@ jobs:
           # Run windeployqt with QML scan
           windeployqt.exe --qmldir qml dist\AuraIsland\AuraIsland.exe --compiler-runtime --no-translations --verbose 1
 
-          # List contents to verify executable is present
           Write-Host "Contents of dist\AuraIsland:"
           Get-ChildItem -Path dist\AuraIsland | Select-Object Name, Length
 
-      - name: Create Zip Package
+      - name: Build Setup.exe with Inno Setup
+        shell: powershell
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\iscc.exe" /DMyAppVersion="$env:APP_VERSION" installer\AuraIsland.iss
+          Write-Host "Contents of dist-installer:"
+          Get-ChildItem -Path dist-installer | Select-Object Name, Length
+
+      - name: Create Portable Zip Package
+        shell: powershell
         run: |
           Compress-Archive -Path dist\AuraIsland\* -DestinationPath AuraIsland-win64.zip -Force
           Write-Host "Package created: AuraIsland-win64.zip"
 
-      - name: Upload Workflow Artifact
+      - name: Upload Installer Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AuraIsland-win64
-          path: dist/AuraIsland/
+          name: AuraIsland-Setup-${{ env.APP_VERSION }}
+          path: dist-installer/AuraIsland-Setup-*.exe
+          retention-days: 14
+
+      - name: Upload Portable Zip Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AuraIsland-win64-portable
+          path: AuraIsland-win64.zip
           retention-days: 14
 
       - name: Create GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: AuraIsland-win64.zip
+          files: |
+            dist-installer/AuraIsland-Setup-*.exe
+            AuraIsland-win64.zip
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

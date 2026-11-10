@@ -224,6 +224,21 @@ void IslandWindow::checkCursorProximity() {
         int idleTop = screenGeo.y() + (isNotch ? 0 : 10);
         int idleBottom = idleTop + 34;
 
+        // Spec Section 9: 360x140 catch zone at top center with left button down
+        int catchLeft = centerX - 180;
+        int catchRight = centerX + 180;
+        int catchTop = screenGeo.y();
+        int catchBottom = screenGeo.y() + 140;
+        bool inCatchZone = (pt.x >= catchLeft && pt.x <= catchRight && pt.y >= catchTop && pt.y <= catchBottom);
+
+        if (isMouseButtonDown && inCatchZone) {
+            m_hoverExpandTimer->stop();
+            AppState::instance().setDragActive(true);
+            AppState::instance().setIslandState("drop");
+            WindowTweaks::setClickThrough(m_hwnd, false);
+            return;
+        }
+
         bool overIdle = (pt.x >= idleLeft && pt.x <= idleRight && pt.y >= idleTop && pt.y <= idleBottom);
 
         if (overIdle) {

@@ -317,6 +317,28 @@ Item {
     }
 
     // ─────────────────────────────────────────────────────────
+    // 2.5. ALERT STATE (360x76, Radius 28)
+    // ─────────────────────────────────────────────────────────
+    Item {
+        id: alertContainer
+        anchors.fill: parent
+        visible: (root.stateName === "alert")
+        opacity: (visible && root.contentReady) ? 1.0 : 0.0
+        scale: (visible && root.contentReady) ? 1.0 : 0.92
+
+        Behavior on opacity {
+            NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
+        }
+        Behavior on scale {
+            SpringAnimation { spring: 4.5; damping: 0.65; mass: 1.0; epsilon: 0.001 }
+        }
+
+        AlertView {
+            anchors.fill: parent
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
     // 3. EXPANDED STATE (480x252 Home/Toggles or 480x300 Tabs)
     // ─────────────────────────────────────────────────────────
     Item {
@@ -376,6 +398,7 @@ Item {
                 clip: true
 
                 HomeTab      { anchors.fill: parent; visible: !appState || appState.currentTab === "home" }
+                TogglesTab   { anchors.fill: parent; visible: appState && appState.currentTab === "toggles" }
                 MoreTab      { anchors.fill: parent; visible: appState && appState.currentTab === "more" }
                 ShelfTab     { anchors.fill: parent; visible: appState && appState.currentTab === "shelf" }
                 MailTab      { anchors.fill: parent; visible: appState && appState.currentTab === "mail" }

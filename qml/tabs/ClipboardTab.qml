@@ -6,7 +6,9 @@ import ".."
 Item {
     id: root
 
-    // Support keyboard shortcuts 1-9 to select items
+    implicitWidth: 448
+    implicitHeight: 230
+
     focus: true
     Keys.onPressed: function(event) {
         if (event.key >= Qt.Key_1 && event.key <= Qt.Key_9) {
@@ -20,412 +22,294 @@ Item {
 
     Column {
         anchors.fill: parent
-        anchors.margins: 12
+        anchors.margins: 10
         spacing: 8
 
-        // Header: Title & Actions
+        // Header: Title, Search, Paste Stack, On/Off Switch
         Item {
             width: parent.width
             height: 28
 
-            Text {
-                text: "Programmer Clipboard"
-                color: Theme.textPrimary
-                font.family: Theme.fontFamily
-                font.pixelSize: 14
-                font.bold: true
+            Row {
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
+                spacing: 8
+
+                Text {
+                    text: "Clipboard"
+                    color: Theme.textPrimary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontTitleSize
+                    font.weight: Theme.fontTitleWeight
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Rectangle {
+                    width: clipCountTxt.implicitWidth + 12
+                    height: 18
+                    radius: 9
+                    color: Qt.rgba(Theme.accentGreen.r, Theme.accentGreen.g, Theme.accentGreen.b, 0.20)
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    Text {
+                        id: clipCountTxt
+                        anchors.centerIn: parent
+                        text: (clipboardManager ? clipboardManager.itemCount : 0).toString()
+                        color: Theme.accentGreen
+                        font.family: Theme.fontMono
+                        font.pixelSize: Theme.fontCaptionSize
+                        font.weight: Font.DemiBold
+                    }
+                }
             }
 
             Row {
                 anchors.right: parent.right
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 6
+                spacing: 8
 
                 GlassInput {
                     id: searchInput
-                    placeholderText: "Fuzzy search..."
-                    implicitWidth: 140
+                    placeholderText: "Search clips..."
+                    implicitWidth: 120
                     implicitHeight: 26
                     onTextChangedByUser: function(q) {
                         if (clipboardManager) clipboardManager.setSearchQuery(q)
                     }
                 }
 
-                GlassButton {
-                    text: "+ UUID"
-                    cornerRadius: 6
-                    implicitHeight: 26
-                    implicitWidth: 54
-                    onClicked: if (clipboardManager) clipboardManager.generateUuid()
-                }
-
-                GlassButton {
+                // Clear text button
+                Text {
                     text: "Clear"
-                    cornerRadius: 6
-                    implicitHeight: 26
-                    implicitWidth: 46
-                    onClicked: if (clipboardManager) clipboardManager.clearHistory()
-                }
-            }
-        }
-
-        // Filter Chips Row
-        Row {
-            width: parent.width
-            height: 24
-            spacing: 6
-
-            readonly property var chips: [
-                { id: "all", label: "All" },
-                { id: "code", label: "Code & JSON" },
-                { id: "links", label: "Links" },
-                { id: "pinned", label: "Pinned" }
-            ]
-
-            Repeater {
-                model: parent.chips
-
-                Rectangle {
-                    width: chipTxt.implicitWidth + 14
-                    height: 22
-                    radius: 11
-                    color: (clipboardManager && clipboardManager.categoryFilter === modelData.id)
-                           ? Theme.accent
-                           : Qt.rgba(1.0, 1.0, 1.0, 0.08)
-                    border.color: (clipboardManager && clipboardManager.categoryFilter === modelData.id)
-                                  ? Theme.accent
-                                  : Qt.rgba(1.0, 1.0, 1.0, 0.12)
-                    border.width: 1
-
-                    Text {
-                        id: chipTxt
-                        anchors.centerIn: parent
-                        text: modelData.label
-                        color: (clipboardManager && clipboardManager.categoryFilter === modelData.id)
-                               ? "#FFFFFF"
-                               : Theme.textSecondary
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                        font.weight: Font.Medium
-                    }
+                    color: clearMouse.containsMouse ? Theme.textPrimary : Theme.textSecondary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: Theme.fontCaptionSize
+                    anchors.verticalCenter: parent.verticalCenter
 
                     MouseArea {
+                        id: clearMouse
                         anchors.fill: parent
                         cursorShape: Qt.PointingHandCursor
+                        hoverEnabled: true
                         onClicked: {
-                            if (clipboardManager) clipboardManager.setCategoryFilter(modelData.id)
+                            if (clipboardManager) clipboardManager.clearHistory()
                         }
                     }
                 }
             }
-
-            // Paste Stack status pill
-            Rectangle {
-                visible: settings && settings.pasteStackEnabled
-                width: stackTxt.implicitWidth + 14
-                height: 22
-                radius: 11
-                color: Qt.rgba(Theme.warning.r, Theme.warning.g, Theme.warning.b, 0.25)
-                border.color: Theme.warning
-                border.width: 1
-
-                Text {
-                    id: stackTxt
-                    anchors.centerIn: parent
-                    text: "Stack: " + (clipboardManager ? clipboardManager.pasteStackCount : 0) + " (Ctrl+Alt+V)"
-                    color: Theme.warning
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 10
-                    font.bold: true
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: if (clipboardManager) clipboardManager.popPasteStack()
-                }
-            }
         }
 
-        // Clipboard List
+        // List View: 52px rows, radius 18
         ListView {
             id: clipList
             width: parent.width
-            height: parent.height - 66
+            height: parent.height - 36
             clip: true
             spacing: 6
             model: clipboardManager ? clipboardManager.model : null
 
-            delegate: GlassCard {
-                id: card
+            delegate: Rectangle {
                 width: clipList.width
-                implicitHeight: cardContent.implicitHeight + 12
+                height: 52 // 52px as specified
+                radius: 18 // radius 18 as specified
+                color: Theme.card
+                border.color: Theme.hairline
+                border.width: Theme.hairlineWidth
+                antialiasing: true
 
-                Column {
-                    id: cardContent
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    anchors.top: parent.top
-                    anchors.margins: 6
-                    spacing: 4
+                Item {
+                    anchors.fill: parent
+                    anchors.margins: 8
 
-                    // Main Row: Index Badge, Type Icon/Swatch, Text Preview, Pin & Copy
-                    Item {
-                        width: parent.width
-                        height: 24
+                    Row {
+                        anchors.left: parent.left
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 10
 
-                        Row {
-                            anchors.left: parent.left
+                        // Number index badge (16x16)
+                        Rectangle {
+                            width: 22
+                            height: 22
+                            radius: 11
+                            color: Theme.cardPressed
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: 8
 
-                            // Quick Select Number (1-9)
-                            Rectangle {
-                                visible: index < 9
-                                width: 16; height: 16; radius: 4
-                                color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                Text {
-                                    anchors.centerIn: parent
-                                    text: String(index + 1)
-                                    color: Theme.accent
-                                    font.family: Theme.fontMono
-                                    font.pixelSize: 9
-                                    font.bold: true
-                                }
-                            }
-
-                            // Hex Color Swatch or Type Badge
-                            Rectangle {
-                                visible: model.itemType === "hex_color"
-                                width: 16; height: 16; radius: 3
-                                color: (model.itemType === "hex_color") ? model.textData.trim() : "transparent"
-                                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.3)
-                                border.width: 1
-                                anchors.verticalCenter: parent.verticalCenter
-                            }
-
-                            // Type Tag
-                            Rectangle {
-                                visible: model.itemType !== "hex_color"
-                                width: typeLabel.implicitWidth + 8; height: 16; radius: 4
-                                color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.18)
-                                anchors.verticalCenter: parent.verticalCenter
-
-                                Text {
-                                    id: typeLabel
-                                    anchors.centerIn: parent
-                                    text: model.itemType.toUpperCase()
-                                    color: Theme.accent
-                                    font.family: Theme.fontMono
-                                    font.pixelSize: 8
-                                    font.bold: true
-                                }
-                            }
-
-                            // Preview Text
                             Text {
-                                width: root.width - (index < 9 ? 220 : 200)
-                                anchors.verticalCenter: parent.verticalCenter
-                                text: model.preview
-                                color: Theme.textPrimary
-                                font.family: (model.itemType === "code" || model.itemType === "json" || model.itemType === "shell_command")
-                                             ? Theme.fontMono : Theme.fontFamily
-                                font.pixelSize: 11
-                                font.weight: Font.Medium
-                                elide: Text.ElideRight
+                                anchors.centerIn: parent
+                                text: String(index + 1)
+                                color: Theme.accentGreen
+                                font.family: Theme.fontMono
+                                font.pixelSize: 10
+                                font.weight: Font.DemiBold
                             }
                         }
 
-                        // Action Buttons: Copy, Pin, Delete
-                        Row {
-                            anchors.right: parent.right
+                        // Text Preview and Type Tag
+                        Column {
+                            width: root.width - 230
                             anchors.verticalCenter: parent.verticalCenter
-                            spacing: 4
+                            spacing: 2
 
-                            GlassButton {
-                                iconSource: "qrc:/resources/icons/copy.svg"
-                                cornerRadius: 4
-                                implicitWidth: 22
-                                implicitHeight: 22
+                            Text {
+                                text: model.preview
+                                color: Theme.textPrimary
+                                font.family: (model.itemType === "json" || model.itemType === "code") ? Theme.fontMono : Theme.fontFamily
+                                font.pixelSize: Theme.fontBodySize // 13px
+                                font.weight: Theme.fontBodyWeight
+                                elide: Text.ElideRight
+                                width: parent.width
+                                maximumLineCount: 1
+                            }
+
+                            Row {
+                                spacing: 6
+                                Rectangle {
+                                    width: typeLabel.implicitWidth + 8
+                                    height: 14
+                                    radius: 4
+                                    color: Qt.rgba(Theme.accentGreen.r, Theme.accentGreen.g, Theme.accentGreen.b, 0.20)
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    Text {
+                                        id: typeLabel
+                                        anchors.centerIn: parent
+                                        text: model.itemType.toUpperCase()
+                                        color: Theme.accentGreen
+                                        font.family: Theme.fontMono
+                                        font.pixelSize: 9
+                                        font.weight: Font.DemiBold
+                                    }
+                                }
+
+                                Text {
+                                    text: model.charCount + " chars"
+                                    color: Theme.textSecondary
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: Theme.fontCaptionSize
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+                        }
+                    }
+
+                    // 30px circular action buttons
+                    Row {
+                        anchors.right: parent.right
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 6
+
+                        // Copy
+                        Rectangle {
+                            width: 30
+                            height: 30
+                            radius: 15
+                            color: copyMouse.pressed ? Theme.card : Theme.cardPressed
+                            border.color: Theme.hairline
+                            border.width: Theme.hairlineWidth
+
+                            scale: copyMouse.pressed ? 0.94 : 1.0
+                            Behavior on scale { SpringAnimation { spring: 4.5; damping: 0.65; mass: 1.0 } }
+
+                            IconImage {
+                                anchors.centerIn: parent
+                                source: "qrc:/resources/icons/copy.svg"
+                                size: 13
+                                color: "#FFFFFF"
+                            }
+                            MouseArea {
+                                id: copyMouse
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
                                 onClicked: if (clipboardManager) clipboardManager.copyItem(model.itemId)
                             }
+                        }
 
-                            GlassButton {
-                                iconSource: "qrc:/resources/icons/pin.svg"
-                                iconColor: model.isPinned ? Theme.accent : Theme.textMuted
-                                cornerRadius: 4
-                                implicitWidth: 22
-                                implicitHeight: 22
+                        // Format / Transform (JSON/Base64/Case)
+                        Rectangle {
+                            width: 30
+                            height: 30
+                            radius: 15
+                            color: fmtMouse.pressed ? Theme.card : Theme.cardPressed
+                            border.color: Theme.hairline
+                            border.width: Theme.hairlineWidth
+                            visible: model.itemType === "json" || model.itemType === "base64" || model.itemType === "text"
+
+                            scale: fmtMouse.pressed ? 0.94 : 1.0
+                            Behavior on scale { SpringAnimation { spring: 4.5; damping: 0.65; mass: 1.0 } }
+
+                            IconImage {
+                                anchors.centerIn: parent
+                                source: "qrc:/resources/icons/sparkles.svg"
+                                size: 13
+                                color: Theme.accentGreen
+                            }
+                            MouseArea {
+                                id: fmtMouse
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (clipboardManager) {
+                                        if (model.itemType === "json") clipboardManager.formatJson(model.itemId)
+                                        else if (model.itemType === "base64") clipboardManager.decodeBase64(model.itemId)
+                                        else clipboardManager.changeCase(model.itemId, "upper")
+                                    }
+                                }
+                            }
+                        }
+
+                        // Pin
+                        Rectangle {
+                            width: 30
+                            height: 30
+                            radius: 15
+                            color: model.isPinned ? Qt.rgba(Theme.accentOrange.r, Theme.accentOrange.g, Theme.accentOrange.b, 0.25) : (pinMouse.pressed ? Theme.card : Theme.cardPressed)
+                            border.color: model.isPinned ? Theme.accentOrange : Theme.hairline
+                            border.width: Theme.hairlineWidth
+
+                            scale: pinMouse.pressed ? 0.94 : 1.0
+                            Behavior on scale { SpringAnimation { spring: 4.5; damping: 0.65; mass: 1.0 } }
+
+                            IconImage {
+                                anchors.centerIn: parent
+                                source: "qrc:/resources/icons/pin.svg"
+                                size: 13
+                                color: model.isPinned ? Theme.accentOrange : "#FFFFFF"
+                            }
+                            MouseArea {
+                                id: pinMouse
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
                                 onClicked: if (clipboardManager) clipboardManager.togglePin(model.itemId)
                             }
+                        }
 
-                            GlassButton {
-                                iconSource: "qrc:/resources/icons/trash.svg"
-                                isDanger: true
-                                cornerRadius: 4
-                                implicitWidth: 22
-                                implicitHeight: 22
+                        // Delete (Red glyph)
+                        Rectangle {
+                            width: 30
+                            height: 30
+                            radius: 15
+                            color: delMouse.pressed ? Theme.card : Theme.cardPressed
+                            border.color: Theme.hairline
+                            border.width: Theme.hairlineWidth
+
+                            scale: delMouse.pressed ? 0.94 : 1.0
+                            Behavior on scale { SpringAnimation { spring: 4.5; damping: 0.65; mass: 1.0 } }
+
+                            IconImage {
+                                anchors.centerIn: parent
+                                source: "qrc:/resources/icons/trash.svg"
+                                size: 13
+                                color: Theme.accentRed // Red glyph
+                            }
+                            MouseArea {
+                                id: delMouse
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
                                 onClicked: if (clipboardManager) clipboardManager.removeItem(model.itemId)
                             }
                         }
                     }
-
-                    // Quick Actions Row per Type
-                    Row {
-                        width: parent.width
-                        spacing: 4
-
-                        // Stats
-                        Text {
-                            text: model.lineCount + (model.lineCount === 1 ? " line, " : " lines, ") + model.charCount + " chars"
-                            color: Theme.textMuted
-                            font.family: Theme.fontMono
-                            font.pixelSize: 8
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-
-                        Item { width: 4; height: 1 }
-
-                        // JSON Actions
-                        GlassButton {
-                            visible: model.itemType === "json"
-                            text: "Format JSON"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.formatJson(model.itemId)
-                        }
-
-                        GlassButton {
-                            visible: model.itemType === "json"
-                            text: "Minify"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.minifyJson(model.itemId)
-                        }
-
-                        // URL Actions
-                        GlassButton {
-                            visible: model.itemType === "url"
-                            text: "Open Link"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: Qt.openUrlExternally(model.textData.trim())
-                        }
-
-                        GlassButton {
-                            visible: model.itemType === "url"
-                            text: "URL Enc"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.urlEncode(model.itemId)
-                        }
-
-                        // Base64 Actions
-                        GlassButton {
-                            text: "Base64"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.base64Encode(model.itemId)
-                        }
-
-                        // Case Transformations
-                        GlassButton {
-                            text: "camel"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "camel")
-                        }
-
-                        GlassButton {
-                            text: "snake"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "snake")
-                        }
-
-                        GlassButton {
-                            text: "kebab"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "kebab")
-                        }
-
-                        GlassButton {
-                            text: "Pascal"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "pascal")
-                        }
-
-                        GlassButton {
-                            text: "UPPER"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.changeCase(model.itemId, "upper")
-                        }
-
-                        // Trim Whitespace
-                        GlassButton {
-                            text: "Trim"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.trimWhitespace(model.itemId)
-                        }
-
-                        // Wrap Markdown
-                        GlassButton {
-                            text: "``` code"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.wrapMarkdown(model.itemId, model.itemSubType)
-                        }
-
-                        // Timestamp Convert
-                        GlassButton {
-                            visible: !isNaN(model.textData.trim()) && model.textData.trim().length >= 10
-                            text: "Epoch Date"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.unixTimestampConvert(model.itemId)
-                        }
-
-                        // Send to Notes / Snippets
-                        GlassButton {
-                            text: "To Notes"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.sendToNotes(model.itemId)
-                        }
-
-                        GlassButton {
-                            text: "To Snippet"
-                            cornerRadius: 4
-                            implicitHeight: 18
-                            onClicked: if (clipboardManager) clipboardManager.saveAsSnippet(model.itemId)
-                        }
-                    }
                 }
-
-                // Click to copy back directly
-                MouseArea {
-                    anchors.fill: parent
-                    z: -1
-                    cursorShape: Qt.PointingHandCursor
-                    onClicked: if (clipboardManager) clipboardManager.copyItem(model.itemId)
-                }
-            }
-
-            Text {
-                visible: clipList.count === 0
-                anchors.centerIn: parent
-                text: "No clipboard history. Copy something to see it here."
-                color: Theme.textMuted
-                font.family: Theme.fontFamily
-                font.pixelSize: 12
             }
         }
     }

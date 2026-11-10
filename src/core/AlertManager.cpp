@@ -5,6 +5,7 @@
 #include "../features/clipboard/ClipboardManager.h"
 #include "../features/dev/DevManager.h"
 #include <QStandardPaths>
+#include <QDateTime>
 #include <QDir>
 #include <QFileInfo>
 #include <QDesktopServices>

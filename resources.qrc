@@ -60,6 +60,7 @@
         <file>qml/components/MascotEyes.qml</file>
         <file>qml/components/StatusRow.qml</file>
         <file>qml/tabs/HomeTab.qml</file>
+        <file>qml/tabs/TogglesTab.qml</file>
         <file>qml/tabs/MoreTab.qml</file>
         <file>qml/tabs/ShelfTab.qml</file>
         <file>qml/tabs/MailTab.qml</file>
