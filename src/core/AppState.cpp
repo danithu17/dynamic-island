@@ -93,7 +93,7 @@ void AppState::setIslandState(const QString &state) {
         emit islandStateChanged();
 
         if (m_islandState == "idle") {
-            emit requestWindowResize(120, 32, 16);
+            emit requestWindowResize(134, 36, 16);
         } else if (m_islandState == "compact") {
             int w = m_isMusicMorphActive ? 280 : 260;
             emit requestWindowResize(w, 36, 18);

@@ -162,8 +162,9 @@ Item {
                     spacing: 8
 
                     // Auto-paste toggle
-                    Row {
+                    Item {
                         width: parent.width
+                        height: 32
 
                         Column {
                             width: parent.width - 100
@@ -200,8 +201,9 @@ Item {
                     Rectangle { width: parent.width; height: 1; color: Theme.glassBorder }
 
                     // Paste Stack mode toggle
-                    Row {
+                    Item {
                         width: parent.width
+                        height: 32
 
                         Column {
                             width: parent.width - 100

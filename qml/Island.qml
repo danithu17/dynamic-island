@@ -109,7 +109,7 @@ Item {
 
     Timer {
         id: hoverExpandTimer
-        interval: 220
+        interval: 320
         repeat: false
         onTriggered: {
             if (root.stateName === "idle" && root.isNativeHovered) {
