@@ -332,11 +332,14 @@ static void RenderStubUI(HDC hdcMem, int width, int height) {
     g.DrawPath(&borderPen, &notchPath);
 
     // Fonts: Segoe UI Variable fallback to Segoe UI
-    FontFamily fontFamily(L"Segoe UI Variable Display");
-    if (!fontFamily.IsAvailable()) {
-        FontFamily fallback(L"Segoe UI");
-        fontFamily = fallback;
+    const wchar_t *fontName = L"Segoe UI Variable Display";
+    {
+        FontFamily test(fontName);
+        if (test.GetLastStatus() != Ok) {
+            fontName = L"Segoe UI";
+        }
     }
+    FontFamily fontFamily(fontName);
 
     Font fontTitle(&fontFamily, 16.0f, FontStyleBold, UnitPixel);
     Font fontSub(&fontFamily, 12.0f, FontStyleRegular, UnitPixel);

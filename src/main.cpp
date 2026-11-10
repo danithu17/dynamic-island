@@ -40,7 +40,7 @@
 #include <windows.h>
 
 static QString getAppVersion() {
-    return QStringLiteral("1.0.8");
+    return QStringLiteral("1.0.9");
 }
 
 static int runUninstallCleanup() {
