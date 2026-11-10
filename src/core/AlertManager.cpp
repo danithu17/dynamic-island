@@ -12,6 +12,7 @@
 #include <QUrl>
 #include <QProcess>
 #include <QClipboard>
+#include <QImage>
 #include <QGuiApplication>
 #include <QMimeData>
 #include <QDebug>
