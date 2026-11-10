@@ -89,6 +89,14 @@ jobs:
           # Run windeployqt with QML scan and compiler runtime
           windeployqt.exe --qmldir qml dist\AuraIsland\AuraIsland.exe --compiler-runtime --no-translations --verbose 1
 
+          # Copy qoffscreen and qminimal plugins for headless selftest
+          $windeployDir = Split-Path (Get-Command windeployqt.exe).Source
+          $qtPluginsDir = Join-Path $windeployDir "..\plugins\platforms"
+          if (Test-Path $qtPluginsDir) {
+            Copy-Item "$qtPluginsDir\qoffscreen*.dll" dist\AuraIsland\platforms\ -Force -ErrorAction SilentlyContinue
+            Copy-Item "$qtPluginsDir\qminimal*.dll" dist\AuraIsland\platforms\ -Force -ErrorAction SilentlyContinue
+          }
+
           Write-Host "Contents of dist\AuraIsland:"
           Get-ChildItem -Path dist\AuraIsland | Select-Object Name, Length
 
@@ -122,7 +130,7 @@ jobs:
           $enginePath = (Resolve-Path "dist-engine\AuraEngine.exe").Path
           Write-Host "Embedding engine from: $enginePath"
           cmake -B build-stub -S installer/stub -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DAPP_VERSION="$env:APP_VERSION" -DAURA_ENGINE_PATH="$enginePath"
-          cmake --build build-stub --config Release
+          cmake --build build-stub --config Release --verbose
           New-Item -ItemType Directory -Force -Path dist-installer
           Copy-Item "build-stub\AuraIsland-Setup-$env:APP_VERSION.exe" dist-installer\
           Write-Host "Setup executable created:"

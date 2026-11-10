@@ -40,7 +40,7 @@
 #include <windows.h>
 
 static QString getAppVersion() {
-    return QStringLiteral("1.0.9");
+    return QStringLiteral("1.0.10");
 }
 
 static int runUninstallCleanup() {
@@ -55,13 +55,29 @@ static int runUninstallCleanup() {
 }
 
 static int runSelftest(int argc, char *argv[]) {
-    std::cout << "[Selftest] Initializing headless selftest with QT_QPA_PLATFORM=offscreen..." << std::endl;
-    qputenv("QT_QPA_PLATFORM", QByteArray("offscreen"));
+    std::cout << "[Selftest] Initializing headless selftest..." << std::endl;
+
+    QString appDir = QFileInfo(QString::fromLocal8Bit(argv[0])).absolutePath();
+
+    // Prefer offscreen, fallback to minimal or windows
+    if (QFile::exists(appDir + "/platforms/qoffscreen.dll")) {
+        qputenv("QT_QPA_PLATFORM", QByteArray("offscreen"));
+        std::cout << "[Selftest] Using offscreen QPA platform plugin." << std::endl;
+    } else if (QFile::exists(appDir + "/platforms/qminimal.dll")) {
+        qputenv("QT_QPA_PLATFORM", QByteArray("minimal"));
+        std::cout << "[Selftest] Using minimal QPA platform plugin." << std::endl;
+    } else {
+        qputenv("QT_QPA_PLATFORM", QByteArray("windows"));
+        std::cout << "[Selftest] Using windows QPA platform plugin." << std::endl;
+    }
 
     QApplication app(argc, argv);
     app.setApplicationName("AuraIsland");
     app.setApplicationDisplayName("Aura Island Selftest");
     app.setOrganizationName("Aura");
+
+    QCoreApplication::addLibraryPath(appDir);
+    QCoreApplication::addLibraryPath(appDir + "/plugins");
 
     Aura::Logger::initQtHandler();
     Aura::Logger::logStep("Selftest: Initializing database");
@@ -76,6 +92,8 @@ static int runSelftest(int argc, char *argv[]) {
     qmlRegisterSingletonType(QUrl(QStringLiteral("qrc:/qml/Theme.qml")), "Aura", 1, 0, "Theme");
 
     QQmlApplicationEngine engine;
+    engine.addImportPath(appDir + "/qml");
+
     QQmlContext *context = engine.rootContext();
     context->setContextProperty("appState", &Aura::AppState::instance());
     context->setContextProperty("alertManager", &Aura::AlertManager::instance());
@@ -89,6 +107,20 @@ static int runSelftest(int argc, char *argv[]) {
     context->setContextProperty("dropManager", &Aura::DropManager::instance());
     context->setContextProperty("systemControlManager", &Aura::SystemControlManager::instance());
 
+    QQmlComponent themeComponent(&engine, QUrl(QStringLiteral("qrc:/qml/Theme.qml")));
+    QObject *themeObject = themeComponent.create(context);
+    if (themeObject) {
+        context->setContextProperty("Theme", themeObject);
+    } else {
+        std::cerr << "[Selftest WARNING] Theme component: " << themeComponent.errorString().toStdString() << std::endl;
+    }
+
+    QObject::connect(&engine, &QQmlApplicationEngine::warnings, [](const QList<QQmlError> &warnings) {
+        for (const auto &w : warnings) {
+            std::cerr << "[Selftest QML Warning] " << w.toString().toStdString() << std::endl;
+        }
+    });
+
     Aura::Logger::logStep("Selftest: Loading QML engine");
     engine.load(QUrl(QStringLiteral("qrc:/qml/Main.qml")));
 
@@ -97,7 +129,7 @@ static int runSelftest(int argc, char *argv[]) {
         return 2;
     }
 
-    std::cout << "[Selftest SUCCESS] Offscreen QML loaded and database initialized properly. Exit code 0." << std::endl;
+    std::cout << "[Selftest SUCCESS] QML loaded and database initialized properly. Exit code 0." << std::endl;
     return 0;
 }
 
