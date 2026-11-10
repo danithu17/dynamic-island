@@ -301,38 +301,43 @@ Item {
             border.color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
             border.width: 1
 
-            Row {
+            Item {
                 anchors.fill: parent
                 anchors.leftMargin: 8
                 anchors.rightMargin: 8
-                spacing: 8
 
-                IconImage {
-                    source: "qrc:/resources/icons/dev.svg"
-                    size: 13
-                    color: Theme.accent
+                Row {
+                    anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
-                }
+                    spacing: 8
 
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width - 150
-                    spacing: 1
-
-                    Text {
-                        text: "Agent Tool Approval"
-                        color: "#FFFFFF"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
-                        font.bold: true
+                    IconImage {
+                        source: "qrc:/resources/icons/dev.svg"
+                        size: 13
+                        color: Theme.accent
+                        anchors.verticalCenter: parent.verticalCenter
                     }
-                    Text {
-                        text: (appState && appState.agentMessage !== "") ? appState.agentMessage : "Claude Code: exec 'git status --short'"
-                        color: Theme.textSecondary
-                        font.family: Theme.fontMono
-                        font.pixelSize: 8
-                        elide: Text.ElideRight
-                        width: parent.width
+
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: root.width - 200
+                        spacing: 1
+
+                        Text {
+                            text: "Agent Tool Approval"
+                            color: "#FFFFFF"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 10
+                            font.bold: true
+                        }
+                        Text {
+                            text: (appState && appState.agentMessage !== "") ? appState.agentMessage : "Claude Code: exec 'git status --short'"
+                            color: Theme.textSecondary
+                            font.family: Theme.fontMono
+                            font.pixelSize: 8
+                            elide: Text.ElideRight
+                            width: parent.width
+                        }
                     }
                 }
 

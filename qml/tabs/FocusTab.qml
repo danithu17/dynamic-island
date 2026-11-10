@@ -56,46 +56,51 @@ Item {
             Behavior on color { ColorAnimation { duration: 200 } }
             Behavior on border.color { ColorAnimation { duration: 200 } }
 
-            Row {
+            Item {
                 anchors.fill: parent
                 anchors.leftMargin: 12
                 anchors.rightMargin: 12
-                spacing: 10
 
-                Rectangle {
-                    width: 28
-                    height: 28
-                    radius: 14
-                    color: (appState && appState.isFocusModeActive) ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.1)
+                Row {
+                    anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
+                    spacing: 10
 
-                    IconImage {
-                        anchors.centerIn: parent
-                        source: "qrc:/resources/icons/moon.svg"
-                        size: 15
-                        color: (appState && appState.isFocusModeActive) ? "#FFFFFF" : Theme.textSecondary
+                    Rectangle {
+                        width: 28
+                        height: 28
+                        radius: 14
+                        color: (appState && appState.isFocusModeActive) ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.1)
+                        anchors.verticalCenter: parent.verticalCenter
+
+                        IconImage {
+                            anchors.centerIn: parent
+                            source: "qrc:/resources/icons/moon.svg"
+                            size: 15
+                            color: (appState && appState.isFocusModeActive) ? "#FFFFFF" : Theme.textSecondary
+                        }
                     }
-                }
 
-                Column {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width - 100
-                    spacing: 2
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: root.width - 150
+                        spacing: 2
 
-                    Text {
-                        text: "Focus Mode (Do Not Disturb)"
-                        color: "#FFFFFF"
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 11
-                        font.bold: true
-                    }
-                    Text {
-                        text: (appState && appState.isFocusModeActive) ? "Island dimmed • Chimes muted • Distractions blocked" : "Dim island & silence non-essential activity"
-                        color: (appState && appState.isFocusModeActive) ? Theme.accent : Theme.textSecondary
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 9
-                        elide: Text.ElideRight
-                        width: parent.width
+                        Text {
+                            text: "Focus Mode (Do Not Disturb)"
+                            color: "#FFFFFF"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 11
+                            font.bold: true
+                        }
+                        Text {
+                            text: (appState && appState.isFocusModeActive) ? "Island dimmed • Chimes muted • Distractions blocked" : "Dim island & silence non-essential activity"
+                            color: (appState && appState.isFocusModeActive) ? Theme.accent : Theme.textSecondary
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 9
+                            elide: Text.ElideRight
+                            width: parent.width
+                        }
                     }
                 }
 

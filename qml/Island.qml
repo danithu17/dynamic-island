@@ -76,35 +76,44 @@ Item {
     }
 
     // ─────────────────────────────────────────────────────────
-    // Hover-to-expand and Leave-to-collapse Controllers
+    // Rock-Solid Win32 Hover-to-expand and Leave-to-collapse
     // ─────────────────────────────────────────────────────────
-    MouseArea {
-        id: islandHoverSensor
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.NoButton
+    property bool openedByClick: false
+    readonly property bool isNativeHovered: (typeof mainWindow !== "undefined" && mainWindow) ? mainWindow.isHovered : false
 
-        onEntered: {
+    onIsNativeHoveredChanged: {
+        if (isNativeHovered) {
             collapseGraceTimer.stop()
             if (root.stateName === "idle") {
                 hoverExpandTimer.start()
             }
-        }
-
-        onExited: {
+        } else {
             hoverExpandTimer.stop()
-            if (root.stateName === "expanded" && (!appState || !appState.isPinned)) {
-                collapseGraceTimer.start()
+            // Only auto-collapse on mouse-leave if opened by peek-hover (not explicit click),
+            // not in games or typing, and not pinned
+            if (root.stateName === "expanded" && !root.openedByClick && (!appState || !appState.isPinned)) {
+                if (!appState || appState.currentTab !== "games") {
+                    collapseGraceTimer.start()
+                }
             }
+        }
+    }
+
+    onStateNameChanged: {
+        if (stateName === "idle") {
+            root.openedByClick = false
+            collapseGraceTimer.stop()
+            hoverExpandTimer.stop()
         }
     }
 
     Timer {
         id: hoverExpandTimer
-        interval: 180
+        interval: 220
         repeat: false
         onTriggered: {
-            if (root.stateName === "idle") {
+            if (root.stateName === "idle" && root.isNativeHovered) {
+                root.openedByClick = false
                 if (appState) appState.setIslandState("expanded")
             }
         }
@@ -112,10 +121,10 @@ Item {
 
     Timer {
         id: collapseGraceTimer
-        interval: 400
+        interval: 1200
         repeat: false
         onTriggered: {
-            if (root.stateName === "expanded" && (!appState || !appState.isPinned)) {
+            if (root.stateName === "expanded" && !root.isNativeHovered && !root.openedByClick && (!appState || !appState.isPinned)) {
                 if (appState) appState.collapseToIdle()
             }
         }
@@ -239,8 +248,14 @@ Item {
             cursorShape: Qt.PointingHandCursor
             onEntered:      root.isHovered = true
             onExited:       root.isHovered = false
-            onClicked:      if (appState) appState.toggleExpanded()
-            onDoubleClicked: if (appState) appState.toggleExpanded()
+            onClicked: {
+                root.openedByClick = true
+                if (appState) appState.toggleExpanded()
+            }
+            onDoubleClicked: {
+                root.openedByClick = true
+                if (appState) appState.toggleExpanded()
+            }
         }
     }
 
@@ -413,13 +428,13 @@ Item {
         }
 
         // Mode C: Standard Compact Status & Media / Focus
-        Row {
+        Item {
             visible: appState && !appState.isQuickCaptureActive && appState.compactEventMessage === ""
             anchors.fill: parent
-            spacing: 8
 
             // Left: icon + badge
             Row {
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
 
@@ -525,7 +540,12 @@ Item {
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
-            acceptedButtons: Qt.NoButton
+            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            propagateComposedEvents: true
+            onPressed: function(mouse) {
+                root.openedByClick = true
+                mouse.accepted = false
+            }
             onPositionChanged: function(mouse) {
                 if (appState) {
                     appState.updateMascotTracking((mouse.x - width / 2) / 35, (mouse.y - height / 2) / 25)

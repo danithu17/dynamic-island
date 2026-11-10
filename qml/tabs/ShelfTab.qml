@@ -137,44 +137,49 @@ Item {
                 width: listView.width
                 implicitHeight: 44
 
-                Row {
+                Item {
                     anchors.fill: parent
                     anchors.margins: 6
-                    spacing: 8
 
-                    IconImage {
-                        source: {
-                            if (model.itemType === "image") return "qrc:/resources/icons/media.svg"
-                            if (model.itemType === "link") return "qrc:/resources/icons/mail.svg"
-                            return "qrc:/resources/icons/shelf.svg"
-                        }
-                        size: 16
-                        color: Theme.accent
+                    Row {
+                        anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
-                    }
+                        spacing: 8
 
-                    Column {
-                        width: parent.width - 150
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 2
-
-                        Text {
-                            text: model.title
-                            color: Theme.textPrimary
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 11
-                            font.weight: Font.Medium
-                            elide: Text.ElideMiddle
-                            width: parent.width
+                        IconImage {
+                            source: {
+                                if (model.itemType === "image") return "qrc:/resources/icons/media.svg"
+                                if (model.itemType === "link") return "qrc:/resources/icons/mail.svg"
+                                return "qrc:/resources/icons/shelf.svg"
+                            }
+                            size: 16
+                            color: Theme.accent
+                            anchors.verticalCenter: parent.verticalCenter
                         }
 
-                        Text {
-                            text: model.filePath !== "" ? model.filePath : model.itemData
-                            color: Theme.textMuted
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 10
-                            elide: Text.ElideMiddle
-                            width: parent.width
+                        Column {
+                            width: root.width - 180
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 2
+
+                            Text {
+                                text: model.title
+                                color: Theme.textPrimary
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 11
+                                font.weight: Font.Medium
+                                elide: Text.ElideMiddle
+                                width: parent.width
+                            }
+
+                            Text {
+                                text: model.filePath !== "" ? model.filePath : model.itemData
+                                color: Theme.textMuted
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 10
+                                elide: Text.ElideMiddle
+                                width: parent.width
+                            }
                         }
                     }
 

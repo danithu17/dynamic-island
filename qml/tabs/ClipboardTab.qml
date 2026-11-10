@@ -171,66 +171,72 @@ Item {
                     spacing: 4
 
                     // Main Row: Index Badge, Type Icon/Swatch, Text Preview, Pin & Copy
-                    Row {
+                    Item {
                         width: parent.width
-                        spacing: 8
+                        height: 24
 
-                        // Quick Select Number (1-9)
-                        Rectangle {
-                            visible: index < 9
-                            width: 16; height: 16; radius: 4
-                            color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                        Row {
+                            anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
+                            spacing: 8
 
-                            Text {
-                                anchors.centerIn: parent
-                                text: String(index + 1)
-                                color: Theme.accent
-                                font.family: Theme.fontMono
-                                font.pixelSize: 9
-                                font.bold: true
+                            // Quick Select Number (1-9)
+                            Rectangle {
+                                visible: index < 9
+                                width: 16; height: 16; radius: 4
+                                color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: String(index + 1)
+                                    color: Theme.accent
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 9
+                                    font.bold: true
+                                }
                             }
-                        }
 
-                        // Hex Color Swatch or Type Badge
-                        Rectangle {
-                            visible: model.itemType === "hex_color"
-                            width: 16; height: 16; radius: 3
-                            color: (model.itemType === "hex_color") ? model.textData.trim() : "transparent"
-                            border.color: Qt.rgba(1.0, 1.0, 1.0, 0.3)
-                            border.width: 1
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-
-                        // Type Tag
-                        Rectangle {
-                            visible: model.itemType !== "hex_color"
-                            width: typeLabel.implicitWidth + 8; height: 16; radius: 4
-                            color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.18)
-                            anchors.verticalCenter: parent.verticalCenter
-
-                            Text {
-                                id: typeLabel
-                                anchors.centerIn: parent
-                                text: model.itemType.toUpperCase()
-                                color: Theme.accent
-                                font.family: Theme.fontMono
-                                font.pixelSize: 8
-                                font.bold: true
+                            // Hex Color Swatch or Type Badge
+                            Rectangle {
+                                visible: model.itemType === "hex_color"
+                                width: 16; height: 16; radius: 3
+                                color: (model.itemType === "hex_color") ? model.textData.trim() : "transparent"
+                                border.color: Qt.rgba(1.0, 1.0, 1.0, 0.3)
+                                border.width: 1
+                                anchors.verticalCenter: parent.verticalCenter
                             }
-                        }
 
-                        // Preview Text
-                        Text {
-                            width: parent.width - (index < 9 ? 160 : 140)
-                            anchors.verticalCenter: parent.verticalCenter
-                            text: model.preview
-                            color: Theme.textPrimary
-                            font.family: (model.itemType === "code" || model.itemType === "json" || model.itemType === "shell_command")
-                                         ? Theme.fontMono : Theme.fontFamily
-                            font.pixelSize: 11
-                            font.weight: Font.Medium
-                            elide: Text.ElideRight
+                            // Type Tag
+                            Rectangle {
+                                visible: model.itemType !== "hex_color"
+                                width: typeLabel.implicitWidth + 8; height: 16; radius: 4
+                                color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.18)
+                                anchors.verticalCenter: parent.verticalCenter
+
+                                Text {
+                                    id: typeLabel
+                                    anchors.centerIn: parent
+                                    text: model.itemType.toUpperCase()
+                                    color: Theme.accent
+                                    font.family: Theme.fontMono
+                                    font.pixelSize: 8
+                                    font.bold: true
+                                }
+                            }
+
+                            // Preview Text
+                            Text {
+                                width: root.width - (index < 9 ? 220 : 200)
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: model.preview
+                                color: Theme.textPrimary
+                                font.family: (model.itemType === "code" || model.itemType === "json" || model.itemType === "shell_command")
+                                             ? Theme.fontMono : Theme.fontFamily
+                                font.pixelSize: 11
+                                font.weight: Font.Medium
+                                elide: Text.ElideRight
+                            }
                         }
 
                         // Action Buttons: Copy, Pin, Delete
