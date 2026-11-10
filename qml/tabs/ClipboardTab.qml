@@ -24,7 +24,7 @@ Item {
         spacing: 8
 
         // Header: Title & Actions
-        Row {
+        Item {
             width: parent.width
             height: 28
 
@@ -34,6 +34,7 @@ Item {
                 font.family: Theme.fontFamily
                 font.pixelSize: 14
                 font.bold: true
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
             }
 

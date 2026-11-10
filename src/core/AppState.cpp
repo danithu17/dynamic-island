@@ -93,15 +93,17 @@ void AppState::setIslandState(const QString &state) {
         emit islandStateChanged();
 
         if (m_islandState == "idle") {
-            emit requestWindowResize(134, 36, 16);
-        } else if (m_islandState == "compact") {
+            emit requestWindowResize(148, 34, 17);
+        } else if (m_islandState == "compact" || m_islandState == "live") {
             int w = m_isMusicMorphActive ? 280 : 260;
-            emit requestWindowResize(w, 36, 18);
+            emit requestWindowResize(w, 34, 17);
+        } else if (m_islandState == "alert") {
+            emit requestWindowResize(360, 76, 28);
         } else if (m_islandState == "expanded") {
-            int h = (m_currentTab == "home") ? 270 : 300;
-            emit requestWindowResize(480, h, 36);
+            int h = (m_currentTab == "home" || m_currentTab == "toggles") ? 252 : 300;
+            emit requestWindowResize(480, h, 34);
         } else if (m_islandState == "drop") {
-            emit requestWindowResize(480, 200, 24);
+            emit requestWindowResize(480, 200, 34);
         }
     }
 }
@@ -111,8 +113,8 @@ void AppState::setCurrentTab(const QString &tab) {
         m_currentTab = tab;
         emit currentTabChanged();
         if (m_islandState == "expanded") {
-            int h = (m_currentTab == "home") ? 270 : 300;
-            emit requestWindowResize(480, h, 36);
+            int h = (m_currentTab == "home" || m_currentTab == "toggles") ? 252 : 300;
+            emit requestWindowResize(480, h, 34);
         }
     }
 }
@@ -195,7 +197,49 @@ void AppState::toggleExpanded() {
     }
 }
 
+void AppState::togglePinned() {
+    if (m_islandState == "idle") {
+        setIslandState("expanded");
+        setIsPinned(true);
+    } else if (m_isPinned) {
+        setIsPinned(false);
+        collapseToIdle();
+    } else {
+        setIsPinned(true);
+    }
+}
+
+void AppState::setTextFieldActive(bool active) {
+    if (m_isTextFieldActive != active) {
+        m_isTextFieldActive = active;
+        emit textFieldActiveChanged();
+    }
+}
+
+void AppState::setDragActive(bool active) {
+    if (m_isDragActive != active) {
+        m_isDragActive = active;
+        emit dragActiveChanged();
+    }
+}
+
+void AppState::setMenuOpen(bool open) {
+    if (m_isMenuOpen != open) {
+        m_isMenuOpen = open;
+        emit menuOpenChanged();
+    }
+}
+
+void AppState::setStickyAlertShowing(bool showing) {
+    if (m_isStickyAlertShowing != showing) {
+        m_isStickyAlertShowing = showing;
+        emit stickyAlertShowingChanged();
+    }
+}
+
 void AppState::collapseToIdle() {
+    m_isPinned = false;
+    emit isPinnedChanged();
     setIslandState("idle");
 }
 

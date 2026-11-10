@@ -3,50 +3,55 @@ import ".."
 
 Item {
     id: root
-    property int cornerRadius: 10
+    property int cornerRadius: Theme.cardRadius // 20px
     property bool isHoverable: true
     property bool isSelected: false
+    property alias isPressed: mouseArea.pressed
+    property alias containsMouse: mouseArea.containsMouse
     property alias contentItem: container.children
     default property alias data: container.data
 
+    signal clicked()
+
     implicitWidth: 200
     implicitHeight: 60
+
+    scale: mouseArea.pressed ? 0.96 : 1.0
+
+    Behavior on scale {
+        SpringAnimation {
+            spring: 4.5
+            damping: 0.65
+            mass: 1.0
+            epsilon: 0.001
+        }
+    }
 
     Rectangle {
         id: cardBg
         anchors.fill: parent
         radius: root.cornerRadius
         color: {
-            if (root.isSelected) return Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.25)
-            return (mouseArea.containsMouse && root.isHoverable) ? Theme.glassSurfaceHover : Theme.glassSurface
+            if (mouseArea.pressed) return Theme.cardPressed
+            if (root.isSelected) return Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.20)
+            return Theme.card
         }
-        border.color: {
-            if (root.isSelected) return Theme.accent
-            return (mouseArea.containsMouse && root.isHoverable) ? Theme.glassBorderHighlight : Theme.glassBorder
-        }
-        border.width: 1
+        border.color: root.isSelected ? Theme.accent : Theme.hairline
+        border.width: Theme.hairlineWidth
+        antialiasing: true
 
         Behavior on color {
-            ColorAnimation { duration: 150 }
+            ColorAnimation { duration: 120 }
         }
         Behavior on border.color {
-            ColorAnimation { duration: 150 }
-        }
-
-        // Inner specular highlight
-        Rectangle {
-            anchors.top: parent.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: 1
-            color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
+            ColorAnimation { duration: 120 }
         }
     }
 
     Item {
         id: container
         anchors.fill: parent
-        anchors.margins: 10
+        anchors.margins: Theme.gap
     }
 
     MouseArea {
@@ -54,5 +59,6 @@ Item {
         anchors.fill: parent
         hoverEnabled: root.isHoverable
         cursorShape: root.isHoverable ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: root.clicked()
     }
 }

@@ -220,7 +220,7 @@ Item {
                                     Text {
                                         id: badgeText
                                         anchors.centerIn: parent
-                                        text: modelData.badge
+                                        text: (modelData.badge !== undefined && modelData.badge !== null) ? ("" + modelData.badge) : ""
                                         color: "#FFFFFF"
                                         font.family: Theme.fontFamily
                                         font.pixelSize: 8

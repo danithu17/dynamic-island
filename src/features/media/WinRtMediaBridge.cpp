@@ -12,6 +12,47 @@ using namespace winrt::Windows::Media::Control;
 
 namespace Aura {
 
+static GlobalSystemMediaTransportControlsSession getActiveSession(GlobalSystemMediaTransportControlsSessionManager const &manager) {
+    if (!manager) return nullptr;
+
+    GlobalSystemMediaTransportControlsSession session = nullptr;
+    try {
+        session = manager.GetCurrentSession();
+    } catch (...) {}
+
+    // Check if the current session is Playing
+    if (session) {
+        try {
+            auto pInfo = session.GetPlaybackInfo();
+            if (pInfo && pInfo.PlaybackStatus() == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing) {
+                return session;
+            }
+        } catch (...) {}
+    }
+
+    // If current session is null or not playing, search all sessions for one that IS playing (Brave, Chrome, Spotify, etc.)
+    try {
+        auto sessions = manager.GetSessions();
+        if (sessions) {
+            for (auto const &s : sessions) {
+                if (!s) continue;
+                try {
+                    auto pInfo = s.GetPlaybackInfo();
+                    if (pInfo && pInfo.PlaybackStatus() == GlobalSystemMediaTransportControlsSessionPlaybackStatus::Playing) {
+                        return s;
+                    }
+                } catch (...) {}
+            }
+            // If none are currently playing, fallback to first available session
+            if (!session && sessions.Size() > 0) {
+                session = sessions.GetAt(0);
+            }
+        }
+    } catch (...) {}
+
+    return session;
+}
+
 WinRtMediaBridge &WinRtMediaBridge::instance() {
     static WinRtMediaBridge s_instance;
     return s_instance;
@@ -47,7 +88,7 @@ MediaTrackInfo WinRtMediaBridge::getCurrentTrack() {
         auto manager = asyncOp.get();
         if (!manager) return info;
 
-        auto session = manager.GetCurrentSession();
+        auto session = getActiveSession(manager);
         if (!session) return info;
 
         auto playbackInfo = session.GetPlaybackInfo();
@@ -76,7 +117,7 @@ bool WinRtMediaBridge::play() {
     try {
         auto manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync().get();
         if (manager) {
-            auto session = manager.GetCurrentSession();
+            auto session = getActiveSession(manager);
             if (session) {
                 return session.TryPlayAsync().get();
             }
@@ -89,7 +130,7 @@ bool WinRtMediaBridge::pause() {
     try {
         auto manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync().get();
         if (manager) {
-            auto session = manager.GetCurrentSession();
+            auto session = getActiveSession(manager);
             if (session) {
                 return session.TryPauseAsync().get();
             }
@@ -102,7 +143,7 @@ bool WinRtMediaBridge::togglePlayPause() {
     try {
         auto manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync().get();
         if (manager) {
-            auto session = manager.GetCurrentSession();
+            auto session = getActiveSession(manager);
             if (session) {
                 return session.TryTogglePlayPauseAsync().get();
             }
@@ -115,7 +156,7 @@ bool WinRtMediaBridge::skipNext() {
     try {
         auto manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync().get();
         if (manager) {
-            auto session = manager.GetCurrentSession();
+            auto session = getActiveSession(manager);
             if (session) {
                 return session.TrySkipNextAsync().get();
             }
@@ -128,7 +169,7 @@ bool WinRtMediaBridge::skipPrevious() {
     try {
         auto manager = GlobalSystemMediaTransportControlsSessionManager::RequestAsync().get();
         if (manager) {
-            auto session = manager.GetCurrentSession();
+            auto session = getActiveSession(manager);
             if (session) {
                 return session.TrySkipPreviousAsync().get();
             }

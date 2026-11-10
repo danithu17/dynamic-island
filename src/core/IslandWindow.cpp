@@ -1,8 +1,10 @@
 #include "IslandWindow.h"
 #include "WindowTweaks.h"
 #include "AppState.h"
+#include "Settings.h"
 #include <QGuiApplication>
 #include <QResizeEvent>
+#include <QKeyEvent>
 #include <QDebug>
 
 namespace Aura {
@@ -10,27 +12,35 @@ namespace Aura {
 IslandWindow::IslandWindow(QWindow *parent)
     : QQuickWindow(parent)
     , m_proximityTimer(new QTimer(this))
+    , m_hoverExpandTimer(new QTimer(this))
     , m_collapseDelayTimer(new QTimer(this)) {
+    
     // Window configuration: frameless, topmost, toolwindow, non-focus-stealing
     setFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::Tool | Qt::WindowDoesNotAcceptFocus);
     setColor(QColor(Qt::transparent));
     setVisible(true);
 
+    m_hoverExpandTimer->setSingleShot(true);
+    connect(m_hoverExpandTimer, &QTimer::timeout, this, &IslandWindow::onHoverExpandTriggered);
+
     m_collapseDelayTimer->setSingleShot(true);
-    connect(m_collapseDelayTimer, &QTimer::timeout, this, [this]() {
-        repositionToTopCenter(m_targetWidth, m_targetHeight);
-    });
+    connect(m_collapseDelayTimer, &QTimer::timeout, this, &IslandWindow::onCollapseTimerTriggered);
 
     // Connect to AppState window resize requests
     connect(&AppState::instance(), &AppState::requestWindowResize,
             this, &IslandWindow::onWindowResizeRequested);
 
-    // Initial size: Idle pill (134x36)
-    repositionToTopCenter(134, 36);
+    // Connect to Settings islandStyle changes
+    connect(&Settings::instance(), &Settings::islandStyleChanged, this, [this]() {
+        repositionToTopCenter(m_targetWidth, m_targetHeight);
+    });
 
-    // Proximity timer at 30ms to monitor mouse hover / outside desktop clicks
+    // Initial size: Idle notch (148x34)
+    repositionToTopCenter(148, 34);
+
+    // Proximity timer initially at 40ms to monitor mouse hover / outside desktop clicks
     connect(m_proximityTimer, &QTimer::timeout, this, &IslandWindow::checkCursorProximity);
-    m_proximityTimer->start(30);
+    m_proximityTimer->start(40);
 
     // Watch for screen geometry changes
     if (QScreen *screen = QGuiApplication::primaryScreen()) {
@@ -46,20 +56,40 @@ IslandWindow::IslandWindow(QWindow *parent)
 
 IslandWindow::~IslandWindow() {
     m_proximityTimer->stop();
+    m_hoverExpandTimer->stop();
     m_collapseDelayTimer->stop();
 }
 
 void IslandWindow::requestWindowFocus() {
     if (m_hwnd) {
+        HWND curFore = GetForegroundWindow();
+        if (curFore != m_hwnd) {
+            m_prevForegroundHwnd = curFore;
+        }
         SetForegroundWindow(m_hwnd);
         SetActiveWindow(m_hwnd);
     }
 }
 
 void IslandWindow::releaseWindowFocus() {
-    if (m_hwnd) {
-        // Return focus
+    if (m_prevForegroundHwnd && IsWindow(m_prevForegroundHwnd)) {
+        SetForegroundWindow(m_prevForegroundHwnd);
+        m_prevForegroundHwnd = nullptr;
     }
+}
+
+void IslandWindow::handleEscKey() {
+    AppState::instance().collapseToIdle();
+    releaseWindowFocus();
+}
+
+void IslandWindow::keyPressEvent(QKeyEvent *event) {
+    if (event->key() == Qt::Key_Escape) {
+        handleEscKey();
+        event->accept();
+        return;
+    }
+    QQuickWindow::keyPressEvent(event);
 }
 
 void IslandWindow::exposeEvent(QExposeEvent *event) {
@@ -73,7 +103,8 @@ void IslandWindow::exposeEvent(QExposeEvent *event) {
 void IslandWindow::resizeEvent(QResizeEvent *event) {
     QQuickWindow::resizeEvent(event);
     if (m_hwnd) {
-        WindowTweaks::updateWindowShape(m_hwnd, width(), height(), m_currentRadius);
+        bool isNotch = (Settings::instance().islandStyle() == "notch");
+        WindowTweaks::updateWindowShape(m_hwnd, m_targetWidth, m_targetHeight, m_currentRadius, isNotch);
     }
 }
 
@@ -84,7 +115,8 @@ void IslandWindow::initializeNativeWindow() {
     if (m_hwnd) {
         WindowTweaks::applyIslandWindowStyles(m_hwnd);
         WindowTweaks::applyGlassEffect(m_hwnd);
-        WindowTweaks::updateWindowShape(m_hwnd, width(), height(), m_currentRadius);
+        bool isNotch = (Settings::instance().islandStyle() == "notch");
+        WindowTweaks::updateWindowShape(m_hwnd, m_targetWidth, m_targetHeight, m_currentRadius, isNotch);
         WindowTweaks::setTopmostNoActivate(m_hwnd);
         ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
         emit nativeWindowReady(m_hwnd);
@@ -97,15 +129,20 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
     if (!targetScreen) return;
 
     QRect screenGeo = targetScreen->geometry();
-    int winWidth = (targetWidth > 0) ? targetWidth : 134;
-    int winHeight = (targetHeight > 0) ? targetHeight : 36;
+    int winW = (targetWidth > 0) ? targetWidth : 148;
+    int winH = (targetHeight > 0) ? targetHeight : 34;
 
-    int x = screenGeo.x() + (screenGeo.width() - winWidth) / 2;
-    int y = screenGeo.y() + 8; // Top aligned 8px from screen edge
+    bool isNotch = (Settings::instance().islandStyle() == "notch");
+    int flareW = isNotch ? 10 : 0;
+    int totalW = winW + flareW * 2;
 
-    setGeometry(x, y, winWidth, winHeight);
+    int x = screenGeo.x() + (screenGeo.width() - winW) / 2 - flareW;
+    int y = screenGeo.y() + (isNotch ? 0 : 10);
+
+    setGeometry(x, y, totalW, winH);
 
     if (m_hwnd) {
+        WindowTweaks::updateWindowShape(m_hwnd, winW, winH, m_currentRadius, isNotch);
         WindowTweaks::setTopmostNoActivate(m_hwnd);
         ShowWindow(m_hwnd, SW_SHOWNOACTIVATE);
     }
@@ -116,14 +153,17 @@ void IslandWindow::onWindowResizeRequested(int width, int height, int radius) {
     m_targetWidth = width;
     m_targetHeight = height;
 
-    if (width <= 140) {
+    if (width <= 160) {
         // Collapsing to idle: DELAY native window resize by 280ms
-        // so the QML spring collapse animation (260ms) plays with full visibility and zero clipping!
-        m_collapseDelayTimer->start(280);
-    } else {
-        // Expanding: Cancel any pending collapse timer and resize native window immediately
-        // so the expanding QML pill can stretch freely!
+        // so the spring collapse animation plays smoothly without clipping
         m_collapseDelayTimer->stop();
+        QTimer::singleShot(280, this, [this, width, height]() {
+            if (AppState::instance().islandState() == "idle") {
+                repositionToTopCenter(width, height);
+            }
+        });
+    } else {
+        // Expanding: Resize immediately so expanding pill can grow freely
         repositionToTopCenter(width, height);
     }
 
@@ -156,23 +196,112 @@ void IslandWindow::checkCursorProximity() {
     if (!m_hwnd || m_isFullscreenSuppressed) return;
 
     POINT pt;
-    if (GetCursorPos(&pt)) {
-        POINT ptClient = pt;
-        ScreenToClient(m_hwnd, &ptClient);
-        RECT rc;
-        GetClientRect(m_hwnd, &rc);
-        bool inside = PtInRect(&rc, ptClient);
+    if (!GetCursorPos(&pt)) return;
 
-        // Outside desktop click auto-collapse (when expanded and not pinned)
-        if (!inside && AppState::instance().islandState() == "expanded" && !AppState::instance().isPinned()) {
-            if ((GetAsyncKeyState(VK_LBUTTON) & 0x8000) || (GetAsyncKeyState(VK_RBUTTON) & 0x8000)) {
-                AppState::instance().collapseToIdle();
+    // Adaptive cursor polling: 30-60ms in top 80px, otherwise 250ms
+    if (pt.y <= 80) {
+        if (m_proximityTimer->interval() != 40) m_proximityTimer->setInterval(40);
+    } else {
+        if (m_proximityTimer->interval() != 250) m_proximityTimer->setInterval(250);
+    }
+
+    bool isMouseButtonDown = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) ||
+                             (GetAsyncKeyState(VK_RBUTTON) & 0x8000) ||
+                             (GetAsyncKeyState(VK_MBUTTON) & 0x8000);
+
+    QString state = AppState::instance().islandState();
+
+    if (state == "idle") {
+        QScreen *targetScreen = screen();
+        if (!targetScreen) targetScreen = QGuiApplication::primaryScreen();
+        if (!targetScreen) return;
+        QRect screenGeo = targetScreen->geometry();
+
+        bool isNotch = (Settings::instance().islandStyle() == "notch");
+        int centerX = screenGeo.x() + screenGeo.width() / 2;
+        int idleLeft = centerX - 148 / 2;
+        int idleRight = centerX + 148 / 2;
+        int idleTop = screenGeo.y() + (isNotch ? 0 : 10);
+        int idleBottom = idleTop + 34;
+
+        bool overIdle = (pt.x >= idleLeft && pt.x <= idleRight && pt.y >= idleTop && pt.y <= idleBottom);
+
+        if (overIdle) {
+            if (!m_isHovered) {
+                m_isHovered = true;
+                emit hoverChanged();
+            }
+            if (!isMouseButtonDown && !m_hoverExpandTimer->isActive()) {
+                m_hoverExpandTimer->start(180);
+            }
+        } else {
+            m_hoverExpandTimer->stop();
+            if (m_isHovered) {
+                m_isHovered = false;
+                emit hoverChanged();
             }
         }
+    } else {
+        // Expanded or other active states
+        RECT rc;
+        GetWindowRect(m_hwnd, &rc);
+        // Inflate by 24px as specified in spec Section 4
+        RECT rcInflated = { rc.left - 24, rc.top - 24, rc.right + 24, rc.bottom + 24 };
+        bool insideInflated = PtInRect(&rcInflated, pt);
 
-        if (inside != m_isHovered) {
-            m_isHovered = inside;
-            emit hoverChanged();
+        if (insideInflated) {
+            m_collapseDelayTimer->stop();
+            if (!m_isHovered) {
+                m_isHovered = true;
+                emit hoverChanged();
+            }
+        } else {
+            if (m_isHovered) {
+                m_isHovered = false;
+                emit hoverChanged();
+            }
+
+            // Outside desktop click auto-collapse
+            if (isMouseButtonDown && !AppState::instance().isPinned()) {
+                if (AppState::instance().canCollapse()) {
+                    AppState::instance().collapseToIdle();
+                    releaseWindowFocus();
+                    return;
+                }
+            }
+
+            // Collapse after 350ms outside inflated bounds
+            if (!m_collapseDelayTimer->isActive()) {
+                m_collapseDelayTimer->start(350);
+            }
+        }
+    }
+}
+
+void IslandWindow::onHoverExpandTriggered() {
+    POINT pt;
+    if (GetCursorPos(&pt)) {
+        bool isMouseButtonDown = (GetAsyncKeyState(VK_LBUTTON) & 0x8000) ||
+                                 (GetAsyncKeyState(VK_RBUTTON) & 0x8000) ||
+                                 (GetAsyncKeyState(VK_MBUTTON) & 0x8000);
+        if (isMouseButtonDown) return; // Cancelled by mouse button
+    }
+
+    if (AppState::instance().islandState() == "idle") {
+        HWND curFore = GetForegroundWindow();
+        if (curFore != m_hwnd) {
+            m_prevForegroundHwnd = curFore;
+        }
+        AppState::instance().setCurrentTab("home");
+        AppState::instance().setIslandState("expanded");
+    }
+}
+
+void IslandWindow::onCollapseTimerTriggered() {
+    if (AppState::instance().islandState() != "idle") {
+        if (AppState::instance().canCollapse()) {
+            AppState::instance().collapseToIdle();
+            releaseWindowFocus();
         }
     }
 }

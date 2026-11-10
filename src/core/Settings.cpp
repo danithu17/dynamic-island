@@ -130,6 +130,22 @@ void Settings::setPasteStackEnabled(bool val) {
     }
 }
 
+void Settings::setIslandStyle(const QString &val) {
+    if (m_islandStyle != val) {
+        m_islandStyle = val;
+        emit islandStyleChanged();
+        save();
+    }
+}
+
+void Settings::setReduceAnimations(bool val) {
+    if (m_reduceAnimations != val) {
+        m_reduceAnimations = val;
+        emit reduceAnimationsChanged();
+        save();
+    }
+}
+
 void Settings::updateAutoStartRegistry(bool enable) {
     QSettings runSettings(REG_RUN_PATH, QSettings::NativeFormat);
     if (enable) {
@@ -170,6 +186,8 @@ void Settings::save() {
     setVal("idleWidget", m_idleWidget);
     setVal("autoPaste", m_autoPaste ? "1" : "0");
     setVal("pasteStackEnabled", m_pasteStackEnabled ? "1" : "0");
+    setVal("islandStyle", m_islandStyle);
+    setVal("reduceAnimations", m_reduceAnimations ? "1" : "0");
 }
 
 void Settings::load() {
@@ -194,6 +212,8 @@ void Settings::load() {
         else if (k == "idleWidget") m_idleWidget = v;
         else if (k == "autoPaste") m_autoPaste = (v == "1");
         else if (k == "pasteStackEnabled") m_pasteStackEnabled = (v == "1");
+        else if (k == "islandStyle") m_islandStyle = v;
+        else if (k == "reduceAnimations") m_reduceAnimations = (v == "1");
     }
 }
 

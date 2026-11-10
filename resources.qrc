@@ -46,6 +46,7 @@
         <file>qml/Theme.qml</file>
         <file>qml/qmldir</file>
         <file>qml/components/GlassPill.qml</file>
+        <file>qml/components/ShellBackground.qml</file>
         <file>qml/components/GlassCard.qml</file>
         <file>qml/components/GlassButton.qml</file>
         <file>qml/components/GlassInput.qml</file>

@@ -20,6 +20,8 @@ class Settings : public QObject {
     Q_PROPERTY(QString idleWidget READ idleWidget WRITE setIdleWidget NOTIFY idleWidgetChanged)
     Q_PROPERTY(bool autoPaste READ autoPaste WRITE setAutoPaste NOTIFY autoPasteChanged)
     Q_PROPERTY(bool pasteStackEnabled READ pasteStackEnabled WRITE setPasteStackEnabled NOTIFY pasteStackEnabledChanged)
+    Q_PROPERTY(QString islandStyle READ islandStyle WRITE setIslandStyle NOTIFY islandStyleChanged)
+    Q_PROPERTY(bool reduceAnimations READ reduceAnimations WRITE setReduceAnimations NOTIFY reduceAnimationsChanged)
 
 public:
     static Settings &instance();
@@ -63,6 +65,12 @@ public:
     bool pasteStackEnabled() const { return m_pasteStackEnabled; }
     void setPasteStackEnabled(bool val);
 
+    QString islandStyle() const { return m_islandStyle; }
+    void setIslandStyle(const QString &val);
+
+    bool reduceAnimations() const { return m_reduceAnimations; }
+    void setReduceAnimations(bool val);
+
     Q_INVOKABLE void save();
     Q_INVOKABLE void load();
 
@@ -80,6 +88,8 @@ signals:
     void idleWidgetChanged();
     void autoPasteChanged();
     void pasteStackEnabledChanged();
+    void islandStyleChanged();
+    void reduceAnimationsChanged();
 
 private:
     explicit Settings(QObject *parent = nullptr);
@@ -99,6 +109,8 @@ private:
     QString m_idleWidget = "clipboard";
     bool m_autoPaste = false;
     bool m_pasteStackEnabled = false;
+    QString m_islandStyle = "notch";
+    bool m_reduceAnimations = false;
 };
 
 } // namespace Aura

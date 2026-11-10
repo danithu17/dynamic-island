@@ -52,9 +52,9 @@ int main(int argc, char *argv[]) {
     auto *nativeFilter = new Aura::NativeEventFilter(&app);
     app.installNativeEventFilter(nativeFilter);
 
-    // Connect hotkey (Ctrl+Alt+Space) to toggle island expansion
+    // Connect hotkey (Ctrl+Alt+Space) to toggle island pinned open
     QObject::connect(nativeFilter, &Aura::NativeEventFilter::hotkeyTriggered, []() {
-        Aura::AppState::instance().toggleExpanded();
+        Aura::AppState::instance().togglePinned();
     });
 
     // Connect Quick Capture hotkey (Ctrl+Alt+N)

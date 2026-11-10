@@ -27,6 +27,10 @@ class AppState : public QObject {
     Q_PROPERTY(bool isMusicMorphActive READ isMusicMorphActive NOTIFY musicMorphChanged)
     Q_PROPERTY(bool isQuickCaptureActive READ isQuickCaptureActive WRITE setIsQuickCaptureActive NOTIFY quickCaptureActiveChanged)
     Q_PROPERTY(bool isFocusModeActive READ isFocusModeActive WRITE setIsFocusModeActive NOTIFY focusModeChanged)
+    Q_PROPERTY(bool isTextFieldActive READ isTextFieldActive WRITE setTextFieldActive NOTIFY textFieldActiveChanged)
+    Q_PROPERTY(bool isDragActive READ isDragActive WRITE setDragActive NOTIFY dragActiveChanged)
+    Q_PROPERTY(bool isMenuOpen READ isMenuOpen WRITE setMenuOpen NOTIFY menuOpenChanged)
+    Q_PROPERTY(bool isStickyAlertShowing READ isStickyAlertShowing WRITE setStickyAlertShowing NOTIFY stickyAlertShowingChanged)
 
     // Step 2: System Status & Mascot Properties
     Q_PROPERTY(int batteryPercent READ batteryPercent NOTIFY systemStatusChanged)
@@ -117,6 +121,24 @@ public:
     Q_INVOKABLE void setIsFocusModeActive(bool active);
     Q_INVOKABLE void toggleFocusMode();
 
+    bool isTextFieldActive() const { return m_isTextFieldActive; }
+    Q_INVOKABLE void setTextFieldActive(bool active);
+
+    bool isDragActive() const { return m_isDragActive; }
+    Q_INVOKABLE void setDragActive(bool active);
+
+    bool isMenuOpen() const { return m_isMenuOpen; }
+    Q_INVOKABLE void setMenuOpen(bool open);
+
+    bool isStickyAlertShowing() const { return m_isStickyAlertShowing; }
+    Q_INVOKABLE void setStickyAlertShowing(bool showing);
+
+    bool canCollapse() const {
+        return !m_isPinned && !m_isTextFieldActive && !m_isDragActive && !m_isMenuOpen && !m_isStickyAlertShowing;
+    }
+
+    Q_INVOKABLE void togglePinned();
+
     Q_INVOKABLE void approveAgentAction();
     Q_INVOKABLE void rejectAgentAction();
 
@@ -150,6 +172,10 @@ signals:
     void musicMorphChanged();
     void quickCaptureActiveChanged();
     void focusModeChanged();
+    void textFieldActiveChanged();
+    void dragActiveChanged();
+    void menuOpenChanged();
+    void stickyAlertShowingChanged();
     void systemStatusChanged();
     void mascotMoodChanged();
     void mascotTrackingChanged();
@@ -184,6 +210,10 @@ private:
     QTimer *m_eventTimer = nullptr;
     bool m_isQuickCaptureActive = false;
     bool m_isFocusModeActive = false;
+    bool m_isTextFieldActive = false;
+    bool m_isDragActive = false;
+    bool m_isMenuOpen = false;
+    bool m_isStickyAlertShowing = false;
 
     // Step 2 members
     int m_batteryPercent = 100;

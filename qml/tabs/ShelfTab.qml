@@ -12,11 +12,12 @@ Item {
         spacing: 8
 
         // Header
-        Row {
+        Item {
             width: parent.width
             height: 28
 
             Row {
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 8
 

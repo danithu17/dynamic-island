@@ -17,12 +17,13 @@ Item {
         spacing: 8
 
         // Top Sub-Navigation Bar & Action Controls
-        Row {
+        Item {
             width: parent.width
             height: 28
 
             // Navigation Chips: Notes, Snippets, Scratchpad
             Row {
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: 4
 

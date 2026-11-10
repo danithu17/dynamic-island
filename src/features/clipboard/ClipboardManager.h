@@ -24,7 +24,7 @@ public:
     void setSearchQuery(const QString &query);
 
     QString categoryFilter() const { return m_categoryFilter; }
-    void setCategoryFilter(const QString &category);
+    Q_INVOKABLE void setCategoryFilter(const QString &category);
 
     int itemCount() const { return m_model.totalCount(); }
     bool pasteStackActive() const;

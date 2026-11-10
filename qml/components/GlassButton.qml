@@ -8,15 +8,21 @@ Item {
     property color iconColor: Theme.textPrimary
     property bool isAccent: false
     property bool isDanger: false
-    property int cornerRadius: 8
+    property int cornerRadius: height / 2 // Circular or pill by default
+    property alias isPressed: mouseArea.pressed
     signal clicked()
 
-    implicitWidth: contentRow.implicitWidth + 24
+    implicitWidth: text !== "" ? (contentRow.implicitWidth + 24) : 32
     implicitHeight: 32
 
-    scale: mouseArea.pressed ? 0.96 : (mouseArea.containsMouse ? 1.02 : 1.0)
+    scale: mouseArea.pressed ? 0.96 : 1.0
     Behavior on scale {
-        NumberAnimation { duration: 120; easing.type: Easing.OutCubic }
+        SpringAnimation {
+            spring: 4.5
+            damping: 0.65
+            mass: 1.0
+            epsilon: 0.001
+        }
     }
 
     Rectangle {
@@ -24,23 +30,25 @@ Item {
         anchors.fill: parent
         radius: root.cornerRadius
         color: {
+            if (mouseArea.pressed) return Theme.cardPressed
             if (root.isDanger) {
-                return mouseArea.containsMouse ? Qt.rgba(1.0, 0.27, 0.23, 0.35) : Qt.rgba(1.0, 0.27, 0.23, 0.2)
+                return Qt.rgba(Theme.accentRed.r, Theme.accentRed.g, Theme.accentRed.b, 0.20)
             }
             if (root.isAccent) {
-                return mouseArea.containsMouse ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.4) : Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.25)
+                return Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.25)
             }
-            return mouseArea.containsMouse ? Theme.glassSurfaceHover : Theme.glassSurface
+            return Theme.card
         }
         border.color: {
-            if (root.isDanger) return Qt.rgba(1.0, 0.27, 0.23, 0.5)
-            if (root.isAccent) return Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.6)
-            return mouseArea.containsMouse ? Theme.glassBorderHighlight : Theme.glassBorder
+            if (root.isDanger) return Theme.accentRed
+            if (root.isAccent) return Theme.accent
+            return Theme.hairline
         }
-        border.width: 1
+        border.width: Theme.hairlineWidth
+        antialiasing: true
 
         Behavior on color {
-            ColorAnimation { duration: 150 }
+            ColorAnimation { duration: 120 }
         }
     }
 
@@ -52,18 +60,18 @@ Item {
         IconImage {
             visible: root.iconSource !== ""
             source: root.iconSource
-            size: 14
-            color: root.isDanger ? Theme.danger : (root.isAccent ? Theme.accent : root.iconColor)
+            size: 16
+            color: root.isDanger ? Theme.accentRed : (root.isAccent ? Theme.accent : root.iconColor)
             anchors.verticalCenter: parent.verticalCenter
         }
 
         Text {
             visible: root.text !== ""
             text: root.text
-            color: root.isDanger ? Theme.danger : (root.isAccent ? Theme.textPrimary : Theme.textPrimary)
+            color: root.isDanger ? Theme.accentRed : Theme.textPrimary
             font.family: Theme.fontFamily
-            font.pixelSize: 12
-            font.weight: Font.Medium
+            font.pixelSize: Theme.fontBodySize
+            font.weight: Theme.fontBodyWeight
             anchors.verticalCenter: parent.verticalCenter
         }
     }

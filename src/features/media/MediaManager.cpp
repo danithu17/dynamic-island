@@ -16,7 +16,7 @@ MediaManager &MediaManager::instance() {
 MediaManager::MediaManager(QObject *parent)
     : QObject(parent), m_timer(new QTimer(this)) {
     connect(m_timer, &QTimer::timeout, this, &MediaManager::pollTrack);
-    m_timer->setInterval(1500); // Poll media every 1.5s
+    m_timer->setInterval(1000); // Poll media every 1.0s for instant song pickup
 
     // Start polling after 1s so UI and window initialize first without blocking!
     QTimer::singleShot(1000, this, [this]() {

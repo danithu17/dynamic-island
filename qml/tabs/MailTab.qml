@@ -12,28 +12,33 @@ Item {
         spacing: 10
 
         // Header
-        Row {
+        Item {
             width: parent.width
             height: 28
 
-            Text {
-                text: "Gmail Hub"
-                color: Theme.textPrimary
-                font.family: Theme.fontFamily
-                font.pixelSize: 15
-                font.bold: true
+            Row {
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-            }
+                spacing: 6
 
-            Text {
-                visible: gmailService && gmailService.isAuthenticated && gmailService.userEmail !== ""
-                text: " (" + (gmailService ? gmailService.userEmail : "") + ")"
-                color: Theme.textSecondary
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                anchors.verticalCenter: parent.verticalCenter
-            }
+                Text {
+                    text: "Gmail Hub"
+                    color: Theme.textPrimary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 15
+                    font.bold: true
+                    anchors.verticalCenter: parent.verticalCenter
+                }
 
+                Text {
+                    visible: gmailService && gmailService.isAuthenticated && gmailService.userEmail !== ""
+                    text: " (" + (gmailService ? gmailService.userEmail : "") + ")"
+                    color: Theme.textSecondary
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 11
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+            }
 
             Row {
                 anchors.right: parent.right

@@ -14,9 +14,9 @@ Item {
         spacing: 8
 
         // ── 1. Header Row ──
-        Row {
+        Item {
             width: parent.width
-            height: 20
+            height: 22
 
             Text {
                 text: "Music & System Controls"
@@ -24,10 +24,9 @@ Item {
                 font.family: Theme.fontFamily
                 font.pixelSize: 13
                 font.bold: true
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
             }
-
-            Item { width: 1; height: 1 }
 
             EqualizerBars {
                 isPlaying: mediaManager ? mediaManager.isPlaying : false

@@ -1,148 +1,80 @@
 import QtQuick
-import QtQuick.Controls
 import ".."
 
 Item {
     id: root
 
     implicitHeight: 28
-    implicitWidth: 456
+    implicitWidth: 448
 
+    // Left: date "TUE 10 NOV" (caption, monospace, secondary color). NO wifi/bluetooth icons here.
     Row {
         anchors.left: parent.left
+        anchors.leftMargin: 8
         anchors.verticalCenter: parent.verticalCenter
-        spacing: 8
-
-        IconImage {
-            source: "qrc:/resources/icons/wifi.svg"
-            size: 13
-            color: (appState && appState.isWifiConnected) ? "#FFFFFF" : ((Theme && Theme.textMuted) ? Theme.textMuted : "#71717A")
-            anchors.verticalCenter: parent.verticalCenter
-        }
-
-        IconImage {
-            source: "qrc:/resources/icons/bluetooth.svg"
-            size: 13
-            color: (appState && appState.isBluetoothConnected) ? "#FFFFFF" : ((Theme && Theme.textMuted) ? Theme.textMuted : "#71717A")
-            opacity: 0.8
-            anchors.verticalCenter: parent.verticalCenter
-        }
+        spacing: 6
 
         Text {
-            text: (appState && appState.currentDateString !== "") ? appState.currentDateString : "MON 09 NOV"
-            color: (Theme && Theme.textSecondary) ? Theme.textSecondary : "#A1A1AA"
-            font.family: (Theme && Theme.fontMono) ? Theme.fontMono : "Cascadia Code, monospace"
-            font.pixelSize: 10
-            font.weight: Font.DemiBold
+            text: (appState && appState.currentDateString !== "") ? appState.currentDateString : "TUE 10 NOV"
+            color: Theme.textSecondary
+            font.family: Theme.fontMono
+            font.pixelSize: Theme.fontCaptionSize
+            font.weight: Theme.fontCaptionWeight
             anchors.verticalCenter: parent.verticalCenter
         }
     }
 
-    // Center Mascot Eyes
+    // Center: Mascot Eyes (eyes blink, follow cursor slightly)
     MascotEyes {
+        id: eyesMascot
         anchors.centerIn: parent
     }
 
-    // Right: Battery pill, Time, Pin & Close buttons
+    // Right: battery "48%" with tiny battery icon (red < 20%, green when charging) and time "11:10 AM"
     Row {
         anchors.right: parent.right
+        anchors.rightMargin: 8
         anchors.verticalCenter: parent.verticalCenter
-        spacing: 8
+        spacing: 10
 
-        // Battery pill (percentage & status, turns red below 20%)
-        Rectangle {
-            id: batteryPill
-            height: 18
-            radius: 9
-            width: batteryRow.implicitWidth + 12
-            color: (appState && appState.isBatteryLow) ? Qt.rgba(1.0, 0.27, 0.23, 0.25) : Qt.rgba(1.0, 1.0, 1.0, 0.08)
-            border.color: (appState && appState.isBatteryLow) ? Theme.danger : Qt.rgba(1.0, 1.0, 1.0, 0.15)
-            border.width: 1
+        // Battery: tiny icon + percentage
+        Row {
             anchors.verticalCenter: parent.verticalCenter
+            spacing: 4
 
-            Row {
-                id: batteryRow
-                anchors.centerIn: parent
-                spacing: 4
-
-                IconImage {
-                    source: "qrc:/resources/icons/battery.svg"
-                    size: 11
-                    color: (appState && appState.isBatteryLow) ? Theme.danger : ((appState && appState.isBatteryCharging) ? Theme.success : "#FFFFFF")
-                    anchors.verticalCenter: parent.verticalCenter
+            IconImage {
+                source: "qrc:/resources/icons/battery.svg"
+                size: 13
+                color: {
+                    if (appState && appState.isBatteryCharging) return Theme.accentGreen
+                    if (appState && appState.isBatteryLow) return Theme.accentRed
+                    return Theme.textSecondary
                 }
+                anchors.verticalCenter: parent.verticalCenter
+            }
 
-                Text {
-                    text: (appState ? appState.batteryPercent : 100) + "%"
-                    color: (appState && appState.isBatteryLow) ? Theme.danger : "#FFFFFF"
-                    font.family: Theme.fontFamily
-                    font.pixelSize: 10
-                    font.weight: Font.Medium
-                    anchors.verticalCenter: parent.verticalCenter
+            Text {
+                text: (appState ? appState.batteryPercent : 100) + "%"
+                color: {
+                    if (appState && appState.isBatteryCharging) return Theme.accentGreen
+                    if (appState && appState.isBatteryLow) return Theme.accentRed
+                    return Theme.textSecondary
                 }
+                font.family: Theme.fontFamily
+                font.pixelSize: Theme.fontCaptionSize
+                font.weight: Theme.fontCaptionWeight
+                anchors.verticalCenter: parent.verticalCenter
             }
         }
 
-        // Time display
+        // Time display (tabular figures)
         Text {
-            text: appState ? appState.currentTimeString : "6:18 PM"
-            color: "#FFFFFF"
+            text: appState ? appState.currentTimeString : "11:10 AM"
+            color: Theme.textPrimary
             font.family: Theme.fontFamily
-            font.pixelSize: 12
-            font.weight: Font.Bold
+            font.pixelSize: Theme.fontBodySize
+            font.weight: Theme.fontTitleWeight
             anchors.verticalCenter: parent.verticalCenter
-        }
-
-        // Pin Toggle Button
-        Rectangle {
-            width: 22
-            height: 22
-            radius: 11
-            color: (appState && appState.isPinned) ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.4) : Qt.rgba(1.0, 1.0, 1.0, 0.08)
-            border.color: (appState && appState.isPinned) ? Theme.accent : Qt.rgba(1.0, 1.0, 1.0, 0.12)
-            border.width: 1
-            anchors.verticalCenter: parent.verticalCenter
-
-            IconImage {
-                anchors.centerIn: parent
-                source: "qrc:/resources/icons/pin.svg"
-                size: 11
-                color: (appState && appState.isPinned) ? Theme.accent : Theme.textSecondary
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: {
-                    if (appState) appState.setIsPinned(!appState.isPinned)
-                }
-            }
-        }
-
-        // Close 'X' Button
-        Rectangle {
-            width: 22
-            height: 22
-            radius: 11
-            color: Qt.rgba(1.0, 1.0, 1.0, 0.08)
-            border.color: Qt.rgba(1.0, 1.0, 1.0, 0.12)
-            border.width: 1
-            anchors.verticalCenter: parent.verticalCenter
-
-            IconImage {
-                anchors.centerIn: parent
-                source: "qrc:/resources/icons/close.svg"
-                size: 10
-                color: "#FFFFFF"
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: {
-                    if (appState) appState.collapseToIdle()
-                }
-            }
         }
     }
 }

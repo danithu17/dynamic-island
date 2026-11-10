@@ -252,11 +252,12 @@ Item {
                     spacing: 8
 
                     // Startup toggle
-                    Row {
+                    Item {
                         width: parent.width
+                        height: 32
 
                         Column {
-                            width: parent.width - 100
+                            anchors.left: parent.left
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 1
 

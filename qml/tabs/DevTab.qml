@@ -115,45 +115,49 @@ Item {
             width: parent.width
             implicitHeight: 64
 
-            Row {
+            Item {
                 anchors.fill: parent
                 anchors.margins: 10
-                spacing: 12
 
-                IconImage {
-                    source: "qrc:/resources/icons/timer.svg"
-                    size: 22
-                    color: Theme.accent
+                Row {
+                    anchors.left: parent.left
                     anchors.verticalCenter: parent.verticalCenter
-                }
+                    spacing: 12
 
-                Column {
-                    width: 140
-                    anchors.verticalCenter: parent.verticalCenter
-                    spacing: 2
-
-                    Text {
-                        text: devManager ? devManager.pomodoro.timeDisplay : "25:00"
-                        color: Theme.textPrimary
-                        font.family: Theme.fontMono
-                        font.pixelSize: 18
-                        font.bold: true
+                    IconImage {
+                        source: "qrc:/resources/icons/timer.svg"
+                        size: 22
+                        color: Theme.accent
+                        anchors.verticalCenter: parent.verticalCenter
                     }
 
-                    Text {
-                        text: {
-                            if (!devManager) return "Pomodoro (Work)"
-                            var m = devManager.pomodoro.mode
-                            if (m === "work") return "Focus Session (" + devManager.pomodoro.completedCycles + " completed)"
-                            if (m === "shortBreak") return "Short Break (5 min)"
-                            return "Long Rest Break (15 min)"
+                    Column {
+                        width: 140
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 2
+
+                        Text {
+                            text: devManager ? devManager.pomodoro.timeDisplay : "25:00"
+                            color: Theme.textPrimary
+                            font.family: Theme.fontMono
+                            font.pixelSize: 18
+                            font.bold: true
                         }
-                        color: Theme.textSecondary
-                        font.family: Theme.fontFamily
-                        font.pixelSize: 10
+
+                        Text {
+                            text: {
+                                if (!devManager) return "Pomodoro (Work)"
+                                var m = devManager.pomodoro.mode
+                                if (m === "work") return "Focus Session (" + devManager.pomodoro.completedCycles + " completed)"
+                                if (m === "shortBreak") return "Short Break (5 min)"
+                                return "Long Rest Break (15 min)"
+                            }
+                            color: Theme.textSecondary
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 10
+                        }
                     }
                 }
-
 
                 Row {
                     anchors.right: parent.right
