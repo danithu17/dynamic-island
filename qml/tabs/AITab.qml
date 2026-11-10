@@ -103,8 +103,6 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
             }
 
-            Item { width: 1; height: 1; Layout.fillWidth: true }
-
             // Preset Quick Chips
             Row {
                 anchors.right: parent.right

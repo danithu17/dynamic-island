@@ -29,10 +29,14 @@ Item {
 
     SequentialAnimation {
         id: blinkAnim
-        NumberAnimation { target: leftEye; property: "scaleY"; to: 0.08; duration: 75; easing.type: Easing.OutQuad }
-        NumberAnimation { target: rightEye; property: "scaleY"; to: 0.08; duration: 75; easing.type: Easing.OutQuad }
-        NumberAnimation { target: leftEye; property: "scaleY"; to: 1.0; duration: 90; easing.type: Easing.InQuad }
-        NumberAnimation { target: rightEye; property: "scaleY"; to: 1.0; duration: 90; easing.type: Easing.InQuad }
+        ParallelAnimation {
+            NumberAnimation { target: leftEyeContainer; property: "height"; to: 2; duration: 75; easing.type: Easing.OutQuad }
+            NumberAnimation { target: rightEyeContainer; property: "height"; to: 2; duration: 75; easing.type: Easing.OutQuad }
+        }
+        ParallelAnimation {
+            NumberAnimation { target: leftEyeContainer; property: "height"; to: root.isWide ? 19 : 15; duration: 90; easing.type: Easing.InQuad }
+            NumberAnimation { target: rightEyeContainer; property: "height"; to: root.isWide ? 19 : 15; duration: 90; easing.type: Easing.InQuad }
+        }
     }
 
     Row {
