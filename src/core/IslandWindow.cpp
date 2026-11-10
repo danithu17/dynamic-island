@@ -4,6 +4,7 @@
 #include <QGuiApplication>
 #include <QResizeEvent>
 #include <QDebug>
+#include <windowsx.h>
 
 namespace Aura {
 
@@ -14,16 +15,16 @@ IslandWindow::IslandWindow(QWindow *parent)
     setColor(QColor(Qt::transparent));
     setVisible(true);
 
+    // Initial canvas size: 540x360 centered at top
+    repositionToTopCenter(540, 360);
+
     // Connect to AppState window resize requests
     connect(&AppState::instance(), &AppState::requestWindowResize,
             this, &IslandWindow::onWindowResizeRequested);
 
-    // Initial size: Idle pill (120x32)
-    repositionToTopCenter(120, 32);
-
-    // Proximity timer at 30ms to monitor mouse hover / click-through
+    // Proximity timer at 25ms to monitor mouse hover / outside clicks
     connect(m_proximityTimer, &QTimer::timeout, this, &IslandWindow::checkCursorProximity);
-    m_proximityTimer->start(30);
+    m_proximityTimer->start(25);
 
     // Watch for screen geometry changes
     if (QScreen *screen = QGuiApplication::primaryScreen()) {
@@ -39,6 +40,23 @@ IslandWindow::IslandWindow(QWindow *parent)
 
 IslandWindow::~IslandWindow() {
     m_proximityTimer->stop();
+}
+
+void IslandWindow::updatePillBounds(int x, int y, int width, int height) {
+    m_pillBounds = QRect(x, y, width, height);
+}
+
+void IslandWindow::requestWindowFocus() {
+    if (m_hwnd) {
+        SetForegroundWindow(m_hwnd);
+        SetActiveWindow(m_hwnd);
+    }
+}
+
+void IslandWindow::releaseWindowFocus() {
+    if (m_hwnd) {
+        // Clear focus if needed
+    }
 }
 
 void IslandWindow::exposeEvent(QExposeEvent *event) {
@@ -76,11 +94,11 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
     if (!targetScreen) return;
 
     QRect screenGeo = targetScreen->geometry();
-    int winWidth = targetWidth;
-    int winHeight = targetHeight;
+    int winWidth = (targetWidth > 0) ? targetWidth : 540;
+    int winHeight = (targetHeight > 0) ? targetHeight : 360;
 
     int x = screenGeo.x() + (screenGeo.width() - winWidth) / 2;
-    int y = screenGeo.y() + 8; // Align top of pill at 8px from screen edge
+    int y = screenGeo.y(); // Top aligned
 
     setGeometry(x, y, winWidth, winHeight);
 
@@ -91,8 +109,11 @@ void IslandWindow::repositionToTopCenter(int targetWidth, int targetHeight) {
 }
 
 void IslandWindow::onWindowResizeRequested(int width, int height, int radius) {
+    Q_UNUSED(width);
+    Q_UNUSED(height);
     m_currentRadius = radius;
-    repositionToTopCenter(width, height);
+    // Canvas remains 540x360 centered; QML smoothly animates width/height inside!
+    repositionToTopCenter(540, 360);
     if (!isVisible()) {
         show();
     }
@@ -115,7 +136,32 @@ void IslandWindow::onFullscreenChanged(bool isFullscreen) {
 }
 
 void IslandWindow::onDisplayConfigurationChanged() {
-    repositionToTopCenter(width(), height());
+    repositionToTopCenter(540, 360);
+}
+
+bool IslandWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result) {
+    MSG *msg = static_cast<MSG *>(message);
+    if (!msg) return QQuickWindow::nativeEvent(eventType, message, result);
+
+    if (msg->message == WM_NCHITTEST && m_hwnd) {
+        POINT pt = { GET_X_LPARAM(msg->lParam), GET_Y_LPARAM(msg->lParam) };
+        ScreenToClient(m_hwnd, &pt);
+
+        qreal dpr = devicePixelRatio();
+        QRect physPill(
+            static_cast<int>(m_pillBounds.x() * dpr) - 6,
+            static_cast<int>(m_pillBounds.y() * dpr) - 6,
+            static_cast<int>(m_pillBounds.width() * dpr) + 12,
+            static_cast<int>(m_pillBounds.height() * dpr) + 12
+        );
+
+        if (!physPill.contains(pt.x, pt.y)) {
+            if (result) *result = HTTRANSPARENT;
+            return true;
+        }
+    }
+
+    return QQuickWindow::nativeEvent(eventType, message, result);
 }
 
 void IslandWindow::checkCursorProximity() {
@@ -125,9 +171,16 @@ void IslandWindow::checkCursorProximity() {
     if (GetCursorPos(&pt)) {
         POINT ptClient = pt;
         ScreenToClient(m_hwnd, &ptClient);
-        RECT rc;
-        GetClientRect(m_hwnd, &rc);
-        bool inside = PtInRect(&rc, ptClient);
+
+        qreal dpr = devicePixelRatio();
+        QRect physPill(
+            static_cast<int>(m_pillBounds.x() * dpr) - 6,
+            static_cast<int>(m_pillBounds.y() * dpr) - 6,
+            static_cast<int>(m_pillBounds.width() * dpr) + 12,
+            static_cast<int>(m_pillBounds.height() * dpr) + 12
+        );
+
+        bool inside = physPill.contains(ptClient.x, ptClient.y);
 
         // Outside desktop click auto-collapse (when expanded and not pinned)
         if (!inside && AppState::instance().islandState() == "expanded" && !AppState::instance().isPinned()) {

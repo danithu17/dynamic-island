@@ -26,6 +26,7 @@ class AppState : public QObject {
     Q_PROPERTY(QString compactEventMessage READ compactEventMessage NOTIFY compactEventMessageChanged)
     Q_PROPERTY(bool isMusicMorphActive READ isMusicMorphActive NOTIFY musicMorphChanged)
     Q_PROPERTY(bool isQuickCaptureActive READ isQuickCaptureActive WRITE setIsQuickCaptureActive NOTIFY quickCaptureActiveChanged)
+    Q_PROPERTY(bool isFocusModeActive READ isFocusModeActive WRITE setIsFocusModeActive NOTIFY focusModeChanged)
 
     // Step 2: System Status & Mascot Properties
     Q_PROPERTY(int batteryPercent READ batteryPercent NOTIFY systemStatusChanged)
@@ -112,6 +113,13 @@ public:
     Q_INVOKABLE void updateMascotTracking(qreal eyeDx, qreal eyeDy);
     Q_INVOKABLE void refreshSystemStatus();
 
+    bool isFocusModeActive() const { return m_isFocusModeActive; }
+    Q_INVOKABLE void setIsFocusModeActive(bool active);
+    Q_INVOKABLE void toggleFocusMode();
+
+    Q_INVOKABLE void approveAgentAction();
+    Q_INVOKABLE void rejectAgentAction();
+
     Q_INVOKABLE void toggleExpanded();
     Q_INVOKABLE void collapseToIdle();
     Q_INVOKABLE void collapseToCompact();
@@ -141,6 +149,7 @@ signals:
     void compactEventMessageChanged();
     void musicMorphChanged();
     void quickCaptureActiveChanged();
+    void focusModeChanged();
     void systemStatusChanged();
     void mascotMoodChanged();
     void mascotTrackingChanged();
@@ -174,6 +183,7 @@ private:
     bool m_isMusicMorphActive = false;
     QTimer *m_eventTimer = nullptr;
     bool m_isQuickCaptureActive = false;
+    bool m_isFocusModeActive = false;
 
     // Step 2 members
     int m_batteryPercent = 100;

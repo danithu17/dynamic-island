@@ -37,6 +37,10 @@
         <file>resources/icons/sleep.svg</file>
         <file>resources/icons/restart.svg</file>
         <file>resources/icons/power.svg</file>
+        <file>resources/icons/sparkles.svg</file>
+        <file>resources/icons/gamepad.svg</file>
+        <file>resources/icons/youtube.svg</file>
+        <file>resources/icons/plus.svg</file>
         <file>qml/Main.qml</file>
         <file>qml/Island.qml</file>
         <file>qml/Theme.qml</file>
@@ -60,6 +64,9 @@
         <file>qml/tabs/NotesTab.qml</file>
         <file>qml/tabs/DevTab.qml</file>
         <file>qml/tabs/MediaTab.qml</file>
+        <file>qml/tabs/AITab.qml</file>
+        <file>qml/tabs/GamesTab.qml</file>
+        <file>qml/tabs/FocusTab.qml</file>
         <file>qml/tabs/SettingsTab.qml</file>
     </qresource>
 </RCC>

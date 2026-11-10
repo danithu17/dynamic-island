@@ -370,6 +370,34 @@ void AppState::calculateSriLankaCalendar() {
     emit calendarChanged();
 }
 
+void AppState::setIsFocusModeActive(bool active) {
+    if (m_isFocusModeActive != active) {
+        m_isFocusModeActive = active;
+        emit focusModeChanged();
+        if (m_isFocusModeActive) {
+            showToast("Focus Mode Active • Chimes Muted", "info");
+        } else {
+            showToast("Focus Mode Off", "info");
+        }
+    }
+}
+
+void AppState::toggleFocusMode() {
+    setIsFocusModeActive(!m_isFocusModeActive);
+}
+
+void AppState::approveAgentAction() {
+    setAgentStatus("approved");
+    setAgentMessage("Action authorized by user");
+    showToast("Agent Action Approved", "success");
+}
+
+void AppState::rejectAgentAction() {
+    setAgentStatus("rejected");
+    setAgentMessage("Action blocked by user");
+    showToast("Agent Action Denied", "warning");
+}
+
 void AppState::quitApp() {
     emit quitRequested();
 }

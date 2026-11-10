@@ -233,7 +233,7 @@ Item {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onClicked: if (appState) appState.setCurrentTab("dev")
+                onClicked: if (appState) appState.setCurrentTab("focus")
             }
         }
 

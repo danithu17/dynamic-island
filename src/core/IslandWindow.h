@@ -3,6 +3,7 @@
 #include <QQuickWindow>
 #include <QTimer>
 #include <QScreen>
+#include <QRect>
 #include <windows.h>
 
 namespace Aura {
@@ -19,7 +20,11 @@ public:
     bool isHovered() const { return m_isHovered; }
 
     void initializeNativeWindow();
-    void repositionToTopCenter(int targetWidth, int targetHeight);
+    void repositionToTopCenter(int targetWidth = 540, int targetHeight = 360);
+
+    Q_INVOKABLE void updatePillBounds(int x, int y, int width, int height);
+    Q_INVOKABLE void requestWindowFocus();
+    Q_INVOKABLE void releaseWindowFocus();
 
 public slots:
     void onWindowResizeRequested(int width, int height, int radius);
@@ -33,6 +38,7 @@ signals:
 protected:
     void exposeEvent(QExposeEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+    bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 
 private slots:
     void checkCursorProximity();
@@ -44,6 +50,7 @@ private:
     bool m_isFullscreenSuppressed = false;
     QTimer *m_proximityTimer = nullptr;
     bool m_isHovered = false;
+    QRect m_pillBounds{210, 8, 120, 32};
 };
 
 } // namespace Aura

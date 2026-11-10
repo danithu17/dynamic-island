@@ -14,7 +14,7 @@ Item {
     // Target dimensions per state
     // ─────────────────────────────────────────────────────────
     readonly property int targetWidth: {
-        if (stateName === "idle")     return 120
+        if (stateName === "idle")     return (root.isHovered ? 134 : 120)
         if (stateName === "compact")  return (appState && appState.isMusicMorphActive) ? 280 : 260
         if (stateName === "expanded") return 480
         if (stateName === "drop")     return 480
@@ -38,16 +38,24 @@ Item {
     }
 
     // ─────────────────────────────────────────────────────────
-    // Fixed Dimensions based on Island State
+    // Elastic Spring Dimensions based on Island State
     // ─────────────────────────────────────────────────────────
     width:  targetWidth
     height: targetHeight
 
     Behavior on width {
-        SmoothedAnimation { duration: Theme.animDurationNormal; easing.type: Easing.OutCubic }
+        NumberAnimation {
+            duration: (root.stateName === "idle") ? 270 : 340
+            easing.type: (root.stateName === "idle") ? Easing.OutCubic : Easing.OutBack
+            easing.overshoot: 1.22
+        }
     }
     Behavior on height {
-        SmoothedAnimation { duration: Theme.animDurationNormal; easing.type: Easing.OutCubic }
+        NumberAnimation {
+            duration: (root.stateName === "idle") ? 250 : 320
+            easing.type: (root.stateName === "idle") ? Easing.OutCubic : Easing.OutBack
+            easing.overshoot: 1.15
+        }
     }
 
     // ─────────────────────────────────────────────────────────
@@ -60,8 +68,8 @@ Item {
         activeGlow: root.stateName === "drop"
 
         Behavior on cornerRadius {
-            SmoothedAnimation {
-                duration: Theme.animDurationNormal
+            NumberAnimation {
+                duration: (root.stateName === "idle") ? 250 : 320
                 easing.type: Easing.OutCubic
             }
         }
@@ -110,6 +118,27 @@ Item {
             if (root.stateName === "expanded" && (!appState || !appState.isPinned)) {
                 if (appState) appState.collapseToIdle()
             }
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Ambient breathing ring for Focus mode
+    // ─────────────────────────────────────────────────────────
+    Rectangle {
+        id: focusBreathingHalo
+        anchors.fill: parent
+        anchors.margins: -4
+        radius: root.targetRadius + 4
+        color: "transparent"
+        border.color: (Theme && Theme.accent) ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.45) : "#660A84FF"
+        border.width: 1.5
+        visible: appState && appState.isFocusModeActive
+
+        SequentialAnimation on opacity {
+            running: appState && appState.isFocusModeActive
+            loops: Animation.Infinite
+            NumberAnimation { to: 0.15; duration: 1600; easing.type: Easing.InOutSine }
+            NumberAnimation { to: 0.85; duration: 1600; easing.type: Easing.InOutSine }
         }
     }
 
@@ -563,6 +592,9 @@ Item {
                 NotesTab     { anchors.fill: parent; visible: appState && appState.currentTab === "notes" }
                 DevTab       { anchors.fill: parent; visible: appState && appState.currentTab === "dev" }
                 MediaTab     { anchors.fill: parent; visible: appState && appState.currentTab === "media" }
+                AITab        { anchors.fill: parent; visible: appState && appState.currentTab === "ai" }
+                GamesTab     { anchors.fill: parent; visible: appState && appState.currentTab === "games" }
+                FocusTab     { anchors.fill: parent; visible: appState && appState.currentTab === "focus" }
                 SettingsTab  { anchors.fill: parent; visible: appState && appState.currentTab === "settings" }
 
                 Rectangle {
